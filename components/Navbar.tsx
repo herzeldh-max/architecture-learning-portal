@@ -75,7 +75,7 @@ export default function Navbar({ userName, role }: NavbarProps) {
             <a href="https://www.tcb.ac.il" target="_blank" rel="noopener noreferrer">
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
-                src="/college-logo.jpg"
+                src="/college-logo.png"
                 alt="המכללה הטכנולוגית באר שבע"
                 width={110}
                 height={66}

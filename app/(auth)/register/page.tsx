@@ -52,7 +52,7 @@ export default function RegisterPage() {
           <a href="https://www.tcb.ac.il" target="_blank" rel="noopener noreferrer">
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
-              src="/college-logo.jpg"
+              src="/college-logo.png"
               alt="המכללה הטכנולוגית באר שבע"
               style={{ width: '130px', height: 'auto' }}
               className="object-contain rounded"

@@ -9,20 +9,31 @@ export default function HomePage() {
             <h1 className="text-xl font-bold">פורטל לימוד - אדריכלות ועיצוב פנים</h1>
             <p className="text-sm opacity-75">המכללה הטכנולוגית בבאר שבע</p>
           </div>
-          <div className="flex gap-3">
-            <Link href="/login">
-              <button className="px-4 py-2 rounded-lg font-semibold border-2 border-white text-white hover:bg-white hover:text-blue-900 transition-colors">
-                כניסה
-              </button>
-            </Link>
-            <Link href="/register">
-              <button
-                className="px-4 py-2 rounded-lg font-semibold"
-                style={{ backgroundColor: 'var(--secondary)', color: '#1a202c' }}
-              >
-                הרשמה
-              </button>
-            </Link>
+          <div className="flex items-center gap-4">
+            <div className="flex gap-3">
+              <Link href="/login">
+                <button className="px-4 py-2 rounded-lg font-semibold border-2 border-white text-white hover:bg-white hover:text-blue-900 transition-colors">
+                  כניסה
+                </button>
+              </Link>
+              <Link href="/register">
+                <button
+                  className="px-4 py-2 rounded-lg font-semibold"
+                  style={{ backgroundColor: 'var(--secondary)', color: '#1a202c' }}
+                >
+                  הרשמה
+                </button>
+              </Link>
+            </div>
+            <a href="https://www.tcb.ac.il" target="_blank" rel="noopener noreferrer">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src="/college-logo.png"
+                alt="המכללה הטכנולוגית באר שבע"
+                style={{ height: '50px', width: 'auto' }}
+                className="object-contain rounded"
+              />
+            </a>
           </div>
         </div>
       </header>
