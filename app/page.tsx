@@ -66,7 +66,7 @@ export default function HomePage() {
       </main>
 
       <footer className="py-4 text-center text-sm" style={{ color: 'var(--text-muted)', borderTop: '1px solid var(--border)' }}>
-        פורטל לימוד - אדריכלות ועיצוב פנים | כל הזכויות שמורות לבן שבת הרצל
+        פורטל לימוד - אדריכלות ועיצוב פנים | &copy; כל הזכויות שמורות לבן שבת הרצל | המכללה הטכנולוגית באר שבע
       </footer>
     </div>
   )

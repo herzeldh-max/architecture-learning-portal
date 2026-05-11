@@ -3,7 +3,6 @@
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
-import Image from 'next/image'
 import { createClient } from '@/lib/supabase'
 
 export default function LoginPage() {
@@ -33,11 +32,11 @@ export default function LoginPage() {
       <div className="card p-8 w-full max-w-md">
         <div className="flex justify-end mb-4">
           <a href="https://www.tcb.ac.il" target="_blank" rel="noopener noreferrer">
-            <Image
-              src="/college-logo.png"
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src="/college-logo.jpg"
               alt="המכללה הטכנולוגית באר שבע"
-              width={130}
-              height={78}
+              style={{ width: '130px', height: 'auto' }}
               className="object-contain rounded"
             />
           </a>

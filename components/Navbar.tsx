@@ -1,7 +1,6 @@
 'use client'
 
 import Link from 'next/link'
-import Image from 'next/image'
 import { useRouter, usePathname } from 'next/navigation'
 import { useState } from 'react'
 import { createClient } from '@/lib/supabase'
@@ -74,8 +73,9 @@ export default function Navbar({ userName, role }: NavbarProps) {
             </button>
             <div className="h-10 w-px bg-white/20 mx-1" />
             <a href="https://www.tcb.ac.il" target="_blank" rel="noopener noreferrer">
-              <Image
-                src="/college-logo.png"
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src="/college-logo.jpg"
                 alt="המכללה הטכנולוגית באר שבע"
                 width={110}
                 height={66}
