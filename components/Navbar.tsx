@@ -1,6 +1,7 @@
 'use client'
 
 import Link from 'next/link'
+import Image from 'next/image'
 import { useRouter, usePathname } from 'next/navigation'
 import { useState } from 'react'
 import { createClient } from '@/lib/supabase'
@@ -71,6 +72,17 @@ export default function Navbar({ userName, role }: NavbarProps) {
             <button onClick={handleLogout} className="text-sm px-3 py-1.5 rounded-lg border border-white/30 hover:bg-white/10 transition-colors">
               יציאה
             </button>
+            <div className="h-10 w-px bg-white/20 mx-1" />
+            <a href="https://www.tcb.ac.il" target="_blank" rel="noopener noreferrer">
+              <Image
+                src="/college-logo.png"
+                alt="המכללה הטכנולוגית באר שבע"
+                width={90}
+                height={54}
+                className="object-contain"
+                style={{ filter: 'brightness(0) invert(1)' }}
+              />
+            </a>
           </div>
 
           <button onClick={() => setMenuOpen(!menuOpen)} className="md:hidden p-2 rounded hover:bg-white/10">

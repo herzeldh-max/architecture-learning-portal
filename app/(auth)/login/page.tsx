@@ -22,8 +22,8 @@ export default function LoginPage() {
       setError('אימייל או סיסמה שגויים')
       setLoading(false)
     } else {
-      router.push('/dashboard')
       router.refresh()
+      router.push('/dashboard')
     }
   }
 

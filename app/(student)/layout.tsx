@@ -1,5 +1,5 @@
 import { redirect } from 'next/navigation'
-import { createClient } from '@/lib/supabase-server'
+import { createClient, createAdminClient } from '@/lib/supabase-server'
 import Navbar from '@/components/Navbar'
 
 export default async function StudentLayout({ children }: { children: React.ReactNode }) {
@@ -7,7 +7,8 @@ export default async function StudentLayout({ children }: { children: React.Reac
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) redirect('/login')
 
-  const { data: profile } = await supabase
+  const adminClient = createAdminClient()
+  const { data: profile } = await adminClient
     .from('user_profiles')
     .select('full_name, role')
     .eq('id', user.id)
