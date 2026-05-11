@@ -38,11 +38,19 @@ export async function middleware(request: NextRequest) {
 
   if (pathname.startsWith('/admin')) {
     if (!user) return NextResponse.redirect(new URL('/login', request.url))
-    const { data: profile } = await supabase
+
+    // Use service role key to bypass RLS for the role check
+    const adminSupabase = createServerClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.SUPABASE_SERVICE_ROLE_KEY!,
+      { cookies: { getAll: () => [], setAll: () => {} } }
+    )
+    const { data: profile } = await adminSupabase
       .from('user_profiles')
       .select('role')
       .eq('id', user.id)
       .single()
+
     if (profile?.role !== 'admin') {
       return NextResponse.redirect(new URL('/dashboard', request.url))
     }
