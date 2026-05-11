@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { createClient } from '@/lib/supabase-server'
+import { createClient, createAdminClient } from '@/lib/supabase-server'
 
 export async function GET(req: NextRequest) {
   try {
@@ -10,7 +10,8 @@ export async function GET(req: NextRequest) {
     const { searchParams } = new URL(req.url)
     const course = searchParams.get('course')
 
-    let query = supabase
+    const adminClient = createAdminClient()
+    let query = adminClient
       .from('pdfs')
       .select('id, course, semester, title, file_size, uploaded_at, extracted_text')
       .order('uploaded_at', { ascending: false })

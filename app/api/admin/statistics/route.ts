@@ -7,11 +7,10 @@ export async function GET(req: NextRequest) {
     const { data: { user } } = await supabase.auth.getUser()
     if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
 
-    const { data: profile } = await supabase
+    const adminClient = createAdminClient()
+    const { data: profile } = await adminClient
       .from('user_profiles').select('role').eq('id', user.id).single()
     if (profile?.role !== 'admin') return NextResponse.json({ error: 'Admin only' }, { status: 403 })
-
-    const adminClient = createAdminClient()
 
     const [studentsRes, answersRes, pdfsRes] = await Promise.all([
       adminClient.from('user_profiles').select('id', { count: 'exact' }).eq('role', 'student'),
