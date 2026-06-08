@@ -12,6 +12,17 @@ interface PDF {
   hasText: boolean
 }
 
+const COURSE_LABELS: Record<string, string> = {
+  building_theory: 'תורת הבנייה',
+  building_legislation: 'תחיקת הבנייה',
+  interior_design: 'עיצוב פנים',
+  architectural_drawing: 'שרטוט אדריכלי',
+  urban_planning: 'תכנון עירוני',
+  structures: 'מבנים וקונסטרוקציה',
+  history_of_architecture: 'היסטוריה של האדריכלות',
+  other: 'אחר',
+}
+
 export default function UploadPage() {
   const [pdfs, setPdfs] = useState<PDF[]>([])
   const [loading, setLoading] = useState(true)
@@ -91,6 +102,12 @@ export default function UploadPage() {
                 <select value={course} onChange={e => setCourse(e.target.value)} className="input-field">
                   <option value="building_theory">תורת הבנייה</option>
                   <option value="building_legislation">תחיקת הבנייה</option>
+                  <option value="interior_design">עיצוב פנים</option>
+                  <option value="architectural_drawing">שרטוט אדריכלי</option>
+                  <option value="urban_planning">תכנון עירוני</option>
+                  <option value="structures">מבנים וקונסטרוקציה</option>
+                  <option value="history_of_architecture">היסטוריה של האדריכלות</option>
+                  <option value="other">אחר</option>
                 </select>
               </div>
               <div>
@@ -141,10 +158,10 @@ export default function UploadPage() {
                   <div className="flex-1 min-w-0">
                     <p className="font-medium text-sm truncate">{pdf.title}</p>
                     <p className="text-xs" style={{ color: 'var(--text-muted)' }}>
-                      {pdf.course === 'building_theory' ? 'תורת הבנייה' : 'תחיקת הבנייה'} |
+                      {COURSE_LABELS[pdf.course] || pdf.course} |
                       סמסטר {pdf.semester === 'A' ? 'א' : pdf.semester === 'B' ? 'ב' : 'שניהם'} |
                       {Math.round((pdf.file_size || 0) / 1024)} KB |
-                      {pdf.hasText ? ' ✅ טקסט נקרא' : ' ⚠️ ללא טקסט'}
+                      {pdf.hasText ? ' ✅ טקסט נקרא' : ' ⚠️ ללא טקסט - לא ישמש לצ\'אט'}
                     </p>
                   </div>
                   <button onClick={() => handleDelete(pdf.id, pdf.title)}

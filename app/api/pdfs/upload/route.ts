@@ -1,15 +1,55 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient, createAdminClient } from '@/lib/supabase-server'
+import { anthropic, MODEL } from '@/lib/claude'
 
 export const runtime = 'nodejs'
-export const maxDuration = 60
+export const maxDuration = 120
 
 async function extractPdfText(buffer: Buffer): Promise<string> {
+  // שלב 1: נסה עם pdf-parse (מהיר, לא עולה כסף)
   try {
     // eslint-disable-next-line @typescript-eslint/no-require-imports
     const pdfParse = require('pdf-parse')
     const data = await pdfParse(buffer)
-    return data.text.slice(0, 50000)
+    const text = (data.text || '').trim()
+    if (text.length > 200) {
+      return text.slice(0, 50000)
+    }
+  } catch {
+    // ממשיך לשלב הבא
+  }
+
+  // שלב 2: fallback - שלח ל-Claude Vision לחילוץ טקסט מ-PDF כתמונה
+  // (עובד גם על מצגות שהן תמונות בלבד)
+  try {
+    if (buffer.length > 20 * 1024 * 1024) {
+      // קובץ גדול מ-20MB - לא שולחים ל-Claude
+      return ''
+    }
+    const base64 = buffer.toString('base64')
+    const response = await anthropic.messages.create({
+      model: MODEL,
+      max_tokens: 4096,
+      messages: [{
+        role: 'user',
+        content: [
+          {
+            type: 'document',
+            source: {
+              type: 'base64',
+              media_type: 'application/pdf',
+              data: base64,
+            },
+          } as never,
+          {
+            type: 'text',
+            text: 'חלץ את כל הטקסט מהמצגת/המסמך הזה. כלול כותרות, תוכן שקפים, טבלאות ורשימות. החזר טקסט נקי ומסודר בעברית.',
+          },
+        ],
+      }],
+    })
+    const block = response.content[0]
+    return block.type === 'text' ? block.text.slice(0, 50000) : ''
   } catch {
     return ''
   }

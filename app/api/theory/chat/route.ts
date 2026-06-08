@@ -17,10 +17,11 @@ export async function POST(req: NextRequest) {
       .eq('course', 'building_theory')
       .not('extracted_text', 'is', null)
       .neq('extracted_text', '')
-      .limit(5)
+      .order('uploaded_at', { ascending: false })
+      .limit(30)
 
     const pdfTexts = pdfs?.map(p =>
-      `מצגת: ${p.title} (סמסטר ${p.semester === 'A' ? 'א' : p.semester === 'B' ? 'ב' : 'שניהם'})\n${p.extracted_text?.slice(0, 3000)}`
+      `מצגת: ${p.title} (סמסטר ${p.semester === 'A' ? 'א' : p.semester === 'B' ? 'ב' : 'שניהם'})\n${p.extracted_text?.slice(0, 5000)}`
     ) || []
 
     const systemPrompt = buildTheorySystemPrompt(pdfTexts)

@@ -27,13 +27,14 @@ export async function POST(req: NextRequest) {
       .eq('course', 'building_theory')
       .not('extracted_text', 'is', null)
       .neq('extracted_text', '')
+      .limit(30)
 
     const filteredPdfs = pdfs?.filter(p =>
       semester === 'both' || p.semester === semester || p.semester === 'both'
     ) || []
 
     const pdfContext = filteredPdfs.length > 0
-      ? filteredPdfs.map(p => `${p.title}:\n${p.extracted_text?.slice(0, 2000)}`).join('\n\n')
+      ? filteredPdfs.map(p => `${p.title}:\n${p.extracted_text?.slice(0, 3000)}`).join('\n\n')
       : 'ידע כללי בתורת הבנייה - חומרים, מבנים, פיזיקת הבנייה, בידוד תרמי ואקוסטי, רטיבות, בטון, ברזל, עץ.'
 
     const { data: usedHashes } = await supabase
