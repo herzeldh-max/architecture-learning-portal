@@ -12,6 +12,8 @@ interface PDF {
   hasText: boolean
 }
 
+type ExtractState = 'idle' | 'loading' | 'done' | 'error'
+
 const COURSE_LABELS: Record<string, string> = {
   building_theory: 'תורת הבנייה',
   building_legislation: 'תחיקת הבנייה',
@@ -32,6 +34,28 @@ export default function UploadPage() {
   const [semester, setSemester] = useState('A')
   const [file, setFile] = useState<File | null>(null)
   const [message, setMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null)
+  const [extractStates, setExtractStates] = useState<Record<string, ExtractState>>({})
+
+  async function handleExtractText(id: string) {
+    setExtractStates(prev => ({ ...prev, [id]: 'loading' }))
+    try {
+      const res = await fetch('/api/pdfs/extract-text', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id }),
+      })
+      const data = await res.json()
+      if (res.ok) {
+        setExtractStates(prev => ({ ...prev, [id]: 'done' }))
+        await loadPdfs()
+      } else {
+        console.error(data.error)
+        setExtractStates(prev => ({ ...prev, [id]: 'error' }))
+      }
+    } catch {
+      setExtractStates(prev => ({ ...prev, [id]: 'error' }))
+    }
+  }
 
   async function loadPdfs() {
     setLoading(true)
@@ -199,13 +223,34 @@ export default function UploadPage() {
                       {COURSE_LABELS[pdf.course] || pdf.course} |
                       סמסטר {pdf.semester === 'A' ? 'א' : pdf.semester === 'B' ? 'ב' : 'שניהם'} |
                       {Math.round((pdf.file_size || 0) / 1024)} KB |
-                      {pdf.hasText ? ' ✅ טקסט נקרא' : ' ⚠️ ללא טקסט - לא ישמש לצ\'אט'}
+                      {pdf.hasText ? ' ✅ טקסט נקרא' : ' ⚠️ ללא טקסט'}
                     </p>
                   </div>
-                  <button onClick={() => handleDelete(pdf.id, pdf.title)}
-                    className="text-red-500 hover:text-red-700 text-sm px-2 py-1 rounded flex-shrink-0">
-                    מחק
-                  </button>
+                  <div className="flex items-center gap-1 flex-shrink-0">
+                    {!pdf.hasText && (
+                      <button
+                        onClick={() => handleExtractText(pdf.id)}
+                        disabled={extractStates[pdf.id] === 'loading'}
+                        title="חלץ טקסט באמצעות AI"
+                        className="text-xs px-2 py-1 rounded border font-medium transition-colors"
+                        style={{
+                          borderColor: extractStates[pdf.id] === 'done' ? 'var(--success)' :
+                                       extractStates[pdf.id] === 'error' ? 'var(--error)' : 'var(--primary)',
+                          color: extractStates[pdf.id] === 'done' ? 'var(--success)' :
+                                 extractStates[pdf.id] === 'error' ? 'var(--error)' : 'var(--primary)',
+                        }}
+                      >
+                        {extractStates[pdf.id] === 'loading' ? '⏳ מחלץ...' :
+                         extractStates[pdf.id] === 'done' ? '✅ הושלם' :
+                         extractStates[pdf.id] === 'error' ? '❌ נכשל' :
+                         '🔍 חלץ טקסט'}
+                      </button>
+                    )}
+                    <button onClick={() => handleDelete(pdf.id, pdf.title)}
+                      className="text-red-500 hover:text-red-700 text-sm px-2 py-1 rounded flex-shrink-0">
+                      מחק
+                    </button>
+                  </div>
                 </div>
               ))}
             </div>
