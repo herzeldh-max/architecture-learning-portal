@@ -49,23 +49,59 @@ export default function UploadPage() {
     setUploading(true)
     setMessage(null)
 
-    const fd = new FormData()
-    fd.append('file', file)
-    fd.append('title', title)
-    fd.append('course', course)
-    fd.append('semester', semester)
-
     try {
-      const res = await fetch('/api/pdfs/upload', { method: 'POST', body: fd })
-      const data = await res.json()
-      if (res.ok) {
-        setMessage({ type: 'success', text: `הקובץ הועלה בהצלחה! ${data.textLength > 0 ? `(${data.textLength} תווים נקרחו)` : '(לא נקרא טקסט)'}` })
+      // שלב 1: קבלת URL חתום להעלאה ישירה ל-Supabase (עוקף מגבלת 4.5MB של Vercel)
+      setMessage({ type: 'success', text: 'מכין העלאה...' })
+      const urlRes = await fetch('/api/pdfs/upload-url', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ course, semester, filename: file.name }),
+      })
+      const urlData = await urlRes.json()
+      if (!urlRes.ok) {
+        setMessage({ type: 'error', text: urlData.error || 'שגיאה בהכנת ההעלאה' })
+        setUploading(false)
+        return
+      }
+
+      // שלב 2: העלאה ישירה ל-Supabase Storage (ללא מגבלת גודל)
+      setMessage({ type: 'success', text: `מעלה קובץ (${Math.round(file.size / 1024 / 1024 * 10) / 10} MB)...` })
+      const uploadRes = await fetch(urlData.signedUrl, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/pdf' },
+        body: file,
+      })
+      if (!uploadRes.ok) {
+        setMessage({ type: 'error', text: 'שגיאה בהעלאת הקובץ לאחסון' })
+        setUploading(false)
+        return
+      }
+
+      // שלב 3: רישום ב-DB + חילוץ טקסט
+      setMessage({ type: 'success', text: 'מחלץ טקסט מהמצגת...' })
+      const regRes = await fetch('/api/pdfs/register', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          storagePath: urlData.storagePath,
+          title,
+          course,
+          semester,
+          fileSize: file.size,
+        }),
+      })
+      const regData = await regRes.json()
+      if (regRes.ok) {
+        setMessage({
+          type: 'success',
+          text: `הקובץ הועלה בהצלחה! ${regData.textLength > 0 ? `(${regData.textLength} תווים נחלצו)` : '(לא נחלץ טקסט)'}`,
+        })
         setTitle(''); setFile(null)
         const input = document.getElementById('fileInput') as HTMLInputElement
         if (input) input.value = ''
         await loadPdfs()
       } else {
-        setMessage({ type: 'error', text: data.error || 'שגיאה בהעלאה' })
+        setMessage({ type: 'error', text: regData.error || 'שגיאה בשמירת הקובץ' })
       }
     } catch {
       setMessage({ type: 'error', text: 'שגיאה בחיבור לשרת' })
@@ -138,7 +174,9 @@ export default function UploadPage() {
               )}
 
               <button type="submit" disabled={uploading || !file || !title} className="btn-primary w-full justify-center py-2.5">
-                {uploading ? <><span className="spinner" style={{ borderTopColor: 'white' }} /> מעלה ומחלץ טקסט...</> : 'העלה קובץ'}
+                {uploading
+                  ? <><span className="spinner" style={{ borderTopColor: 'white' }} /> {message?.text || 'מעלה...'}</>
+                  : 'העלה קובץ'}
               </button>
             </form>
           </div>
