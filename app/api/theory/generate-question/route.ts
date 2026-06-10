@@ -33,9 +33,11 @@ export async function POST(req: NextRequest) {
       semester === 'both' || p.semester === semester || p.semester === 'both'
     ) || []
 
-    const pdfContext = filteredPdfs.length > 0
-      ? filteredPdfs.map(p => `${p.title}:\n${p.extracted_text?.slice(0, 3000)}`).join('\n\n')
-      : 'ידע כללי בתורת הבנייה - חומרים, מבנים, פיזיקת הבנייה, בידוד תרמי ואקוסטי, רטיבות, בטון, ברזל, עץ.'
+    if (filteredPdfs.length === 0) {
+      return NextResponse.json({ error: 'no-materials', message: 'אין עדיין חומרי לימוד זמינים לסמסטר שנבחר. פנה למרצה להעלאת חומרים.' }, { status: 404 })
+    }
+
+    const pdfContext = filteredPdfs.map(p => `${p.title}:\n${p.extracted_text?.slice(0, 3000)}`).join('\n\n')
 
     const { data: usedHashes } = await supabase
       .from('question_history')
@@ -52,16 +54,16 @@ export async function POST(req: NextRequest) {
 
     const systemPrompt = `אתה מרצה מומחה לתורת הבנייה. צור שאלת ${actualType === 'multiple' ? 'אמריקאית (multiple choice)' : 'פתוחה'} מעניינת ומאתגרת על תורת הבנייה.
 
-חומרי הקורס:
+חומרי הקורס (זהו המקור היחיד המותר לשאלות):
 ${pdfContext}
 
 דרישות:
 1. השאלה תהיה ברמת קושי בינונית-גבוהה, מקצועית
-2. השאלה תתבסס על החומרים שסופקו
+2. השאלה והתשובה חייבות להתבסס אך ורק על הנושאים, המונחים והתכנים שמופיעים בחומרי הקורס שסופקו לעיל - אסור לשאול על נושאים, חומרים או נתונים שאינם מופיעים בחומרים הללו, גם אם הם נכונים מבחינה מקצועית כללית
 3. ${actualType === 'multiple' ? '4 תשובות אפשריות, רק אחת נכונה' : 'שאלה פתוחה שדורשת הסבר מעמיק'}
-4. כלול הסבר/פתרון מפורט
+4. כלול הסבר/פתרון מפורט, המתבסס על החומרים שסופקו
 
-הנחיה: כבר שאלת ${usedCount} שאלות. צור שאלה על נושא שונה מהנושאים הקודמים.`
+הנחיה: כבר שאלת ${usedCount} שאלות. צור שאלה על נושא שונה מהנושאים הקודמים, אך עדיין מתוך חומרי הקורס בלבד.`
 
     let prompt
     if (actualType === 'multiple') {

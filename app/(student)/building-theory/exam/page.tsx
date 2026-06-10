@@ -42,9 +42,11 @@ function ExamContent() {
   const [totalScore, setTotalScore] = useState(0)
   const [qCount, setQCount] = useState(0)
   const [submitting, setSubmitting] = useState(false)
+  const [errorMsg, setErrorMsg] = useState<string | null>(null)
 
   async function startSession() {
     setLoading(true)
+    setErrorMsg(null)
     try {
       const res = await fetch('/api/theory/generate-question', {
         method: 'POST',
@@ -56,6 +58,8 @@ function ExamContent() {
         setCurrentQ(data.question)
         setSessionId(data.sessionId)
         setPhase('question')
+      } else if (data.message) {
+        setErrorMsg(data.message)
       }
     } catch { }
     setLoading(false)
@@ -66,6 +70,7 @@ function ExamContent() {
     setResult(null)
     setAnswer('')
     setSelectedIdx(null)
+    setErrorMsg(null)
     try {
       const res = await fetch('/api/theory/generate-question', {
         method: 'POST',
@@ -75,6 +80,9 @@ function ExamContent() {
       const data = await res.json()
       if (data.question) {
         setCurrentQ(data.question)
+        setPhase('question')
+      } else if (data.message) {
+        setErrorMsg(data.message)
         setPhase('question')
       }
     } catch { }
@@ -145,6 +153,9 @@ function ExamContent() {
             className="btn-primary w-full justify-center py-3 mt-6 text-base">
             {loading ? <><span className="spinner" style={{ borderTopColor: 'white' }} /> מכין שאלה...</> : 'התחל תרגול'}
           </button>
+          {errorMsg && (
+            <p className="text-sm mt-3 text-center" style={{ color: 'var(--error)' }}>{errorMsg}</p>
+          )}
         </div>
       </div>
     )
@@ -175,6 +186,10 @@ function ExamContent() {
         <div className="card p-12 text-center">
           <div className="spinner mx-auto mb-3" style={{ width: '2rem', height: '2rem' }}></div>
           <p style={{ color: 'var(--text-muted)' }}>מכין שאלה חדשה...</p>
+        </div>
+      ) : errorMsg ? (
+        <div className="card p-8 text-center">
+          <p style={{ color: 'var(--error)' }}>{errorMsg}</p>
         </div>
       ) : currentQ && (
         <div className="card p-6">
