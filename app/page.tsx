@@ -43,7 +43,7 @@ export default function HomePage() {
             </div>
           </header>
 
-          <div className="hero-content max-w-5xl mx-auto px-6 pb-20 md:pb-28 text-white">
+          <div className="hero-content max-w-3xl mx-auto px-6 pb-20 md:pb-28 text-white text-center flex flex-col items-center">
             <h2 className="text-4xl md:text-6xl font-extrabold mb-5 leading-tight">
               ברוכים הבאים לפורטל הלימוד
             </h2>
