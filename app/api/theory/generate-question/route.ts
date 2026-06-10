@@ -39,20 +39,30 @@ export async function POST(req: NextRequest) {
 
     const pdfContext = filteredPdfs.map(p => `${p.title}:\n${p.extracted_text?.slice(0, 3000)}`).join('\n\n')
 
-    const { data: usedHashes } = await supabase
+    const { data: history } = await supabase
       .from('question_history')
-      .select('question_hash')
+      .select('question_hash, question_text')
       .eq('user_id', user.id)
       .eq('course', 'building_theory')
-      .limit(100)
+      .order('created_at', { ascending: false })
+      .limit(200)
 
-    const usedCount = usedHashes?.length || 0
+    const usedHashes = new Set((history || []).map(h => h.question_hash))
+    const usedCount = usedHashes.size
+    const recentQuestions = (history || [])
+      .map(h => h.question_text)
+      .filter((t): t is string => !!t)
+      .slice(0, 40)
 
     const actualType = questionType === 'mixed'
       ? (Math.random() > 0.5 ? 'multiple' : 'open')
       : questionType
 
-    const systemPrompt = `אתה מרצה מומחה לתורת הבנייה. צור שאלת ${actualType === 'multiple' ? 'אמריקאית (multiple choice)' : 'פתוחה'} מעניינת ומאתגרת על תורת הבנייה.
+    const avoidList = recentQuestions.length > 0
+      ? `\nשאלות שכבר נשאלו לסטודנט זה (אל תחזור עליהן ואל תיצור וריאציה קרובה אליהן):\n${recentQuestions.map(q => `- ${q}`).join('\n')}\n`
+      : ''
+
+    const buildSystemPrompt = (extra?: string) => `אתה מרצה מומחה לתורת הבנייה. צור שאלת ${actualType === 'multiple' ? 'אמריקאית (multiple choice)' : 'פתוחה'} מעניינת ומאתגרת על תורת הבנייה.
 
 חומרי הקורס (זהו המקור היחיד המותר לשאלות):
 ${pdfContext}
@@ -62,8 +72,8 @@ ${pdfContext}
 2. השאלה והתשובה חייבות להתבסס אך ורק על הנושאים, המונחים והתכנים שמופיעים בחומרי הקורס שסופקו לעיל - אסור לשאול על נושאים, חומרים או נתונים שאינם מופיעים בחומרים הללו, גם אם הם נכונים מבחינה מקצועית כללית
 3. ${actualType === 'multiple' ? '4 תשובות אפשריות, רק אחת נכונה' : 'שאלה פתוחה שדורשת הסבר מעמיק'}
 4. כלול הסבר/פתרון מפורט, המתבסס על החומרים שסופקו
-
-הנחיה: כבר שאלת ${usedCount} שאלות. צור שאלה על נושא שונה מהנושאים הקודמים, אך עדיין מתוך חומרי הקורס בלבד.`
+${avoidList}
+הנחיה: כבר שאלת ${usedCount} שאלות. צור שאלה חדשה לגמרי, על נושא, היבט או זווית שונים מהשאלות שכבר נשאלו, אך עדיין מתוך חומרי הקורס בלבד. הקורס מכיל מגוון רחב של נושאים, פרקים, הגדרות, חישובים ודוגמאות - חפש זוויות חדשות (הגדרה, יישום, השוואה, חישוב, יתרון/חיסרון וכו') כדי למנוע חזרה.${extra ? `\n${extra}` : ''}`
 
     let prompt
     if (actualType === 'multiple') {
@@ -84,15 +94,29 @@ ${pdfContext}
 }`
     }
 
-    const raw = await chat(systemPrompt, prompt)
-    const jsonMatch = raw.match(/\{[\s\S]*\}/)
-    if (!jsonMatch) throw new Error('No JSON in response')
-
-    const parsed = JSON.parse(jsonMatch[0])
+    let parsed: { question: string; choices?: string[]; correctIndex?: number; explanation?: string; sampleAnswer?: string; keyPoints?: string[] } | null = null
+    let qHash = ''
+    const maxAttempts = 3
+    for (let attempt = 0; attempt < maxAttempts; attempt++) {
+      const extra = attempt > 0 ? 'השאלה שיצרת בניסיון הקודם כבר נשאלה בעבר - צור שאלה שונה לחלוטין.' : undefined
+      const raw = await chat(buildSystemPrompt(extra), prompt)
+      const jsonMatch = raw.match(/\{[\s\S]*\}/)
+      if (!jsonMatch) continue
+      const candidate = JSON.parse(jsonMatch[0])
+      const candidateHash = hashQuestion(candidate.question)
+      if (!usedHashes.has(candidateHash)) {
+        parsed = candidate
+        qHash = candidateHash
+        break
+      }
+      parsed = candidate
+      qHash = candidateHash
+    }
+    if (!parsed) throw new Error('No JSON in response')
 
     if (actualType === 'multiple') {
-      const originalChoices = parsed.choices
-      const originalCorrectIndex = parsed.correctIndex
+      const originalChoices = parsed.choices!
+      const originalCorrectIndex = parsed.correctIndex!
       const correctAnswer = originalChoices[originalCorrectIndex]
 
       const indices = [0, 1, 2, 3]
@@ -108,9 +132,8 @@ ${pdfContext}
         explanation: parsed.explanation,
       }
 
-      const qHash = hashQuestion(parsed.question)
       await supabase.from('question_history').upsert(
-        { user_id: user.id, question_hash: qHash, course: 'building_theory' },
+        { user_id: user.id, question_hash: qHash, question_text: parsed.question, course: 'building_theory' },
         { onConflict: 'user_id,question_hash', ignoreDuplicates: true }
       )
 
@@ -123,9 +146,8 @@ ${pdfContext}
         keyPoints: parsed.keyPoints || [],
       }
 
-      const qHash = hashQuestion(parsed.question)
       await supabase.from('question_history').upsert(
-        { user_id: user.id, question_hash: qHash, course: 'building_theory' },
+        { user_id: user.id, question_hash: qHash, question_text: parsed.question, course: 'building_theory' },
         { onConflict: 'user_id,question_hash', ignoreDuplicates: true }
       )
 
