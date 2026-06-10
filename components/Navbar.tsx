@@ -71,6 +71,16 @@ export default function Navbar({ userName, role }: NavbarProps) {
             <button onClick={handleLogout} className="text-sm px-3 py-1.5 rounded-lg border border-white/30 hover:bg-white/10 transition-colors">
               יציאה
             </button>
+            <div className="h-10 w-px bg-white/20 mx-1" />
+            <a href="https://www.tcb.ac.il" target="_blank" rel="noopener noreferrer">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src="/college-logo.png"
+                alt="המכללה הטכנולוגית באר שבע"
+                style={{ height: '48px', width: 'auto' }}
+                className="object-contain rounded"
+              />
+            </a>
           </div>
 
           <button onClick={() => setMenuOpen(!menuOpen)} className="md:hidden p-2 rounded hover:bg-white/10">

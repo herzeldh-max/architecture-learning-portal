@@ -22,14 +22,25 @@ export default function LoginPage() {
       setError('אימייל או סיסמה שגויים')
       setLoading(false)
     } else {
-      router.push('/dashboard')
       router.refresh()
+      router.push('/dashboard')
     }
   }
 
   return (
     <div className="min-h-screen flex items-center justify-center p-4" style={{ backgroundColor: 'var(--bg)' }}>
       <div className="card p-8 w-full max-w-md">
+        <div className="flex justify-end mb-4">
+          <a href="https://www.tcb.ac.il" target="_blank" rel="noopener noreferrer">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src="/college-logo.png"
+              alt="המכללה הטכנולוגית באר שבע"
+              style={{ width: '130px', height: 'auto' }}
+              className="object-contain rounded"
+            />
+          </a>
+        </div>
         <div className="text-center mb-8">
           <h1 className="text-2xl font-bold mb-1" style={{ color: 'var(--primary)' }}>כניסה לפורטל</h1>
           <p className="text-sm" style={{ color: 'var(--text-muted)' }}>פורטל לימוד - אדריכלות ועיצוב פנים</p>

@@ -1,11 +1,12 @@
-import { createClient } from '@/lib/supabase-server'
+import { createClient, createAdminClient } from '@/lib/supabase-server'
 import Link from 'next/link'
 
 export default async function DashboardPage() {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
 
-  const { data: profile } = await supabase
+  const adminClient = createAdminClient()
+  const { data: profile } = await adminClient
     .from('user_profiles')
     .select('full_name, role')
     .eq('id', user!.id)
@@ -38,7 +39,7 @@ export default async function DashboardPage() {
           description="חומרי לימוד, שאלות חופשיות והכנה למבחן"
           links={[
             { href: '/building-theory', label: 'חומרי לימוד' },
-            { href: '/building-theory/chat', label: "שאלות ח'ופשיות" },
+            { href: '/building-theory/chat', label: 'שאלות חופשיות' },
             { href: '/building-theory/exam', label: 'הכנה למבחן' },
           ]}
           color="var(--primary)"

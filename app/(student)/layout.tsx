@@ -1,5 +1,5 @@
 import { redirect } from 'next/navigation'
-import { createClient } from '@/lib/supabase-server'
+import { createClient, createAdminClient } from '@/lib/supabase-server'
 import Navbar from '@/components/Navbar'
 
 export default async function StudentLayout({ children }: { children: React.ReactNode }) {
@@ -7,7 +7,8 @@ export default async function StudentLayout({ children }: { children: React.Reac
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) redirect('/login')
 
-  const { data: profile } = await supabase
+  const adminClient = createAdminClient()
+  const { data: profile } = await adminClient
     .from('user_profiles')
     .select('full_name, role')
     .eq('id', user.id)
@@ -20,7 +21,7 @@ export default async function StudentLayout({ children }: { children: React.Reac
         {children}
       </main>
       <footer className="py-3 text-center text-xs" style={{ color: 'var(--text-muted)', borderTop: '1px solid var(--border)' }}>
-        פורטל לימוד - אדריכלות ועיצוב פנים | המכללה הטכנולוגית בבאר שבע
+        פורטל לימוד - אדריכלות ועיצוב פנים | &copy; כל הזכויות שמורות לבן שבת הרצל | המכללה הטכנולוגית באר שבע
       </footer>
     </div>
   )

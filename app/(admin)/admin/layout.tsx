@@ -23,7 +23,7 @@ export default async function AdminLayout({ children }: { children: React.ReactN
         {children}
       </main>
       <footer className="py-3 text-center text-xs" style={{ color: 'var(--text-muted)', borderTop: '1px solid var(--border)' }}>
-        פורטל לימוד - אדריכלות ועיצוב פנים | ממשק מנהל
+        פורטל לימוד - אדריכלות ועיצוב פנים | &copy; כל הזכויות שמורות לבן שבת הרצל | המכללה הטכנולוגית באר שבע
       </footer>
     </div>
   )

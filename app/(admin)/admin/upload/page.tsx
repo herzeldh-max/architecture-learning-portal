@@ -12,6 +12,19 @@ interface PDF {
   hasText: boolean
 }
 
+type ExtractState = 'idle' | 'loading' | 'done' | 'error'
+
+const COURSE_LABELS: Record<string, string> = {
+  building_theory: 'תורת הבנייה',
+  building_legislation: 'תחיקת הבנייה',
+  interior_design: 'עיצוב פנים',
+  architectural_drawing: 'שרטוט אדריכלי',
+  urban_planning: 'תכנון עירוני',
+  structures: 'מבנים וקונסטרוקציה',
+  history_of_architecture: 'היסטוריה של האדריכלות',
+  other: 'אחר',
+}
+
 export default function UploadPage() {
   const [pdfs, setPdfs] = useState<PDF[]>([])
   const [loading, setLoading] = useState(true)
@@ -21,6 +34,28 @@ export default function UploadPage() {
   const [semester, setSemester] = useState('A')
   const [file, setFile] = useState<File | null>(null)
   const [message, setMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null)
+  const [extractStates, setExtractStates] = useState<Record<string, ExtractState>>({})
+
+  async function handleExtractText(id: string) {
+    setExtractStates(prev => ({ ...prev, [id]: 'loading' }))
+    try {
+      const res = await fetch('/api/pdfs/extract-text', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id }),
+      })
+      const data = await res.json()
+      if (res.ok) {
+        setExtractStates(prev => ({ ...prev, [id]: 'done' }))
+        await loadPdfs()
+      } else {
+        console.error(data.error)
+        setExtractStates(prev => ({ ...prev, [id]: 'error' }))
+      }
+    } catch {
+      setExtractStates(prev => ({ ...prev, [id]: 'error' }))
+    }
+  }
 
   async function loadPdfs() {
     setLoading(true)
@@ -38,23 +73,59 @@ export default function UploadPage() {
     setUploading(true)
     setMessage(null)
 
-    const fd = new FormData()
-    fd.append('file', file)
-    fd.append('title', title)
-    fd.append('course', course)
-    fd.append('semester', semester)
-
     try {
-      const res = await fetch('/api/pdfs/upload', { method: 'POST', body: fd })
-      const data = await res.json()
-      if (res.ok) {
-        setMessage({ type: 'success', text: `הקובץ הועלה בהצלחה! ${data.textLength > 0 ? `(${data.textLength} תווים נקרחו)` : '(לא נקרא טקסט)'}` })
+      // שלב 1: קבלת URL חתום להעלאה ישירה ל-Supabase (עוקף מגבלת 4.5MB של Vercel)
+      setMessage({ type: 'success', text: 'מכין העלאה...' })
+      const urlRes = await fetch('/api/pdfs/upload-url', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ course, semester, filename: file.name }),
+      })
+      const urlData = await urlRes.json()
+      if (!urlRes.ok) {
+        setMessage({ type: 'error', text: urlData.error || 'שגיאה בהכנת ההעלאה' })
+        setUploading(false)
+        return
+      }
+
+      // שלב 2: העלאה ישירה ל-Supabase Storage (ללא מגבלת גודל)
+      setMessage({ type: 'success', text: `מעלה קובץ (${Math.round(file.size / 1024 / 1024 * 10) / 10} MB)...` })
+      const uploadRes = await fetch(urlData.signedUrl, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/pdf' },
+        body: file,
+      })
+      if (!uploadRes.ok) {
+        setMessage({ type: 'error', text: 'שגיאה בהעלאת הקובץ לאחסון' })
+        setUploading(false)
+        return
+      }
+
+      // שלב 3: רישום ב-DB + חילוץ טקסט
+      setMessage({ type: 'success', text: 'מחלץ טקסט מהמצגת...' })
+      const regRes = await fetch('/api/pdfs/register', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          storagePath: urlData.storagePath,
+          title,
+          course,
+          semester,
+          fileSize: file.size,
+        }),
+      })
+      const regData = await regRes.json()
+      if (regRes.ok) {
+        setMessage({
+          type: 'success',
+          text: `הקובץ הועלה בהצלחה! ${regData.textLength > 0 ? `(${regData.textLength} תווים נחלצו)` : '(לא נחלץ טקסט)'}`,
+        })
         setTitle(''); setFile(null)
         const input = document.getElementById('fileInput') as HTMLInputElement
         if (input) input.value = ''
         await loadPdfs()
       } else {
-        setMessage({ type: 'error', text: data.error || 'שגיאה בהעלאה' })
+        setMessage({ type: 'error', text: regData.error || 'שגיאה בשמירת הקובץ' })
       }
     } catch {
       setMessage({ type: 'error', text: 'שגיאה בחיבור לשרת' })
@@ -91,6 +162,12 @@ export default function UploadPage() {
                 <select value={course} onChange={e => setCourse(e.target.value)} className="input-field">
                   <option value="building_theory">תורת הבנייה</option>
                   <option value="building_legislation">תחיקת הבנייה</option>
+                  <option value="interior_design">עיצוב פנים</option>
+                  <option value="architectural_drawing">שרטוט אדריכלי</option>
+                  <option value="urban_planning">תכנון עירוני</option>
+                  <option value="structures">מבנים וקונסטרוקציה</option>
+                  <option value="history_of_architecture">היסטוריה של האדריכלות</option>
+                  <option value="other">אחר</option>
                 </select>
               </div>
               <div>
@@ -121,7 +198,9 @@ export default function UploadPage() {
               )}
 
               <button type="submit" disabled={uploading || !file || !title} className="btn-primary w-full justify-center py-2.5">
-                {uploading ? <><span className="spinner" style={{ borderTopColor: 'white' }} /> מעלה ומחלץ טקסט...</> : 'העלה קובץ'}
+                {uploading
+                  ? <><span className="spinner" style={{ borderTopColor: 'white' }} /> {message?.text || 'מעלה...'}</>
+                  : 'העלה קובץ'}
               </button>
             </form>
           </div>
@@ -141,16 +220,37 @@ export default function UploadPage() {
                   <div className="flex-1 min-w-0">
                     <p className="font-medium text-sm truncate">{pdf.title}</p>
                     <p className="text-xs" style={{ color: 'var(--text-muted)' }}>
-                      {pdf.course === 'building_theory' ? 'תורת הבנייה' : 'תחיקת הבנייה'} |
+                      {COURSE_LABELS[pdf.course] || pdf.course} |
                       סמסטר {pdf.semester === 'A' ? 'א' : pdf.semester === 'B' ? 'ב' : 'שניהם'} |
                       {Math.round((pdf.file_size || 0) / 1024)} KB |
                       {pdf.hasText ? ' ✅ טקסט נקרא' : ' ⚠️ ללא טקסט'}
                     </p>
                   </div>
-                  <button onClick={() => handleDelete(pdf.id, pdf.title)}
-                    className="text-red-500 hover:text-red-700 text-sm px-2 py-1 rounded flex-shrink-0">
-                    מחק
-                  </button>
+                  <div className="flex items-center gap-1 flex-shrink-0">
+                    {!pdf.hasText && (
+                      <button
+                        onClick={() => handleExtractText(pdf.id)}
+                        disabled={extractStates[pdf.id] === 'loading'}
+                        title="חלץ טקסט באמצעות AI"
+                        className="text-xs px-2 py-1 rounded border font-medium transition-colors"
+                        style={{
+                          borderColor: extractStates[pdf.id] === 'done' ? 'var(--success)' :
+                                       extractStates[pdf.id] === 'error' ? 'var(--error)' : 'var(--primary)',
+                          color: extractStates[pdf.id] === 'done' ? 'var(--success)' :
+                                 extractStates[pdf.id] === 'error' ? 'var(--error)' : 'var(--primary)',
+                        }}
+                      >
+                        {extractStates[pdf.id] === 'loading' ? '⏳ מחלץ...' :
+                         extractStates[pdf.id] === 'done' ? '✅ הושלם' :
+                         extractStates[pdf.id] === 'error' ? '❌ נכשל' :
+                         '🔍 חלץ טקסט'}
+                      </button>
+                    )}
+                    <button onClick={() => handleDelete(pdf.id, pdf.title)}
+                      className="text-red-500 hover:text-red-700 text-sm px-2 py-1 rounded flex-shrink-0">
+                      מחק
+                    </button>
+                  </div>
                 </div>
               ))}
             </div>
