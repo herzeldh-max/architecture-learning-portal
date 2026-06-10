@@ -77,8 +77,7 @@ export default function Navbar({ userName, role }: NavbarProps) {
               <img
                 src="/college-logo.png"
                 alt="המכללה הטכנולוגית באר שבע"
-                width={110}
-                height={66}
+                style={{ height: '48px', width: 'auto' }}
                 className="object-contain rounded"
               />
             </a>

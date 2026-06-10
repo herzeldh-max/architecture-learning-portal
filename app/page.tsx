@@ -30,7 +30,7 @@ export default function HomePage() {
               <img
                 src="/college-logo.png"
                 alt="המכללה הטכנולוגית באר שבע"
-                style={{ height: '50px', width: 'auto' }}
+                style={{ height: '64px', width: 'auto' }}
                 className="object-contain rounded"
               />
             </a>
@@ -39,12 +39,17 @@ export default function HomePage() {
       </header>
 
       <main className="flex-1">
-        <section className="py-16 px-6 text-center" style={{ backgroundColor: 'var(--primary)' }}>
-          <div className="max-w-3xl mx-auto text-white">
-            <h2 className="text-4xl font-bold mb-4">ברוכים הבאים לפורטל הלימוד</h2>
-            <p className="text-lg mb-8" style={{ opacity: 0.85 }}>
+        <section
+          className="hero-section"
+          style={{ backgroundImage: "url('/hero-architecture.jpg')" }}
+        >
+          <div className="hero-content max-w-5xl mx-auto px-6 py-20 md:py-28 text-white">
+            <h2 className="text-4xl md:text-6xl font-extrabold mb-5 leading-tight">
+              ברוכים הבאים לפורטל הלימוד
+            </h2>
+            <p className="text-lg md:text-xl mb-10 max-w-2xl" style={{ opacity: 0.9 }}>
               מערכת AI מתקדמת לסטודנטים לאדריכלות ועיצוב פנים.
-              שאלות, חומרים, ותרגול לקראת הבחינות.
+              שאלות, חומרים ותרגול לקראת הבחינות.
             </p>
             <Link href="/register">
               <button
@@ -57,12 +62,15 @@ export default function HomePage() {
           </div>
         </section>
 
-        <section className="py-14 px-6">
+        <section className="py-20 px-6">
           <div className="max-w-5xl mx-auto">
-            <h3 className="text-2xl font-bold text-center mb-10" style={{ color: 'var(--primary)' }}>
+            <h3 className="text-3xl font-extrabold text-center mb-3" style={{ color: 'var(--primary)' }}>
               מה תמצאו בפורטל?
             </h3>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <p className="text-center mb-14" style={{ color: 'var(--text-muted)' }}>
+              כל מה שצריך כדי להתכונן בביטחון לקורסי תורת הבנייה ותחיקת הבנייה
+            </p>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
               <FeatureCard icon="📐" title="תורת הבנייה" subtitle="קורס לשנה א'"
                 points={['חומרי לימוד מהמצגות לפי סמסטר','שאלות חופשיות על החומר עם AI','הכנה למבחן עם שאלות מותאמות','ניקוד מיידי ומשוב מפורט']} />
               <FeatureCard icon="📋" title="תחיקת הבנייה" subtitle="תקנות תכנון ובנייה"
@@ -85,15 +93,15 @@ export default function HomePage() {
 
 function FeatureCard({ icon, title, subtitle, points }: { icon: string; title: string; subtitle: string; points: string[] }) {
   return (
-    <div className="card p-6">
-      <div className="flex items-center gap-3 mb-4">
-        <span className="text-3xl">{icon}</span>
+    <div className="card p-8">
+      <div className="flex items-center gap-4 mb-5">
+        <span className="text-4xl">{icon}</span>
         <div>
-          <h4 className="text-lg font-bold" style={{ color: 'var(--primary)' }}>{title}</h4>
+          <h4 className="text-xl font-extrabold" style={{ color: 'var(--primary)' }}>{title}</h4>
           <p className="text-sm" style={{ color: 'var(--text-muted)' }}>{subtitle}</p>
         </div>
       </div>
-      <ul className="space-y-2">
+      <ul className="space-y-2.5">
         {points.map((p, i) => (
           <li key={i} className="flex items-start gap-2 text-sm">
             <span className="mt-0.5 font-bold" style={{ color: 'var(--secondary)' }}>✓</span>

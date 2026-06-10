@@ -19,19 +19,22 @@ export async function GET(req: NextRequest) {
       .order('created_at', { ascending: false })
 
     const studentIds = profiles?.map(p => p.id) || []
-    const statsMap: Record<string, { count: number; avg: number }> = {}
+    const statsMap: Record<string, { count: number; avg: number; lastActive: string | null }> = {}
 
     if (studentIds.length > 0) {
       const { data: answers } = await adminClient
         .from('exam_answers')
-        .select('user_id, score')
+        .select('user_id, score, created_at')
         .in('user_id', studentIds)
 
       for (const sid of studentIds) {
         const userAnswers = answers?.filter(a => a.user_id === sid) || []
         const count = userAnswers.length
         const avg = count > 0 ? userAnswers.reduce((s, a) => s + (a.score || 0), 0) / count : 0
-        statsMap[sid] = { count, avg: Math.round(avg * 10) / 10 }
+        const lastActive = count > 0
+          ? userAnswers.reduce((latest, a) => a.created_at > latest ? a.created_at : latest, userAnswers[0].created_at)
+          : null
+        statsMap[sid] = { count, avg: Math.round(avg * 10) / 10, lastActive }
       }
     }
 
@@ -39,6 +42,7 @@ export async function GET(req: NextRequest) {
       ...p,
       questionCount: statsMap[p.id]?.count || 0,
       avgScore: statsMap[p.id]?.avg || 0,
+      lastActive: statsMap[p.id]?.lastActive || null,
     }))
 
     return NextResponse.json({ students })

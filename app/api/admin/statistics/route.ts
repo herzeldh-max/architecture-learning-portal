@@ -12,10 +12,11 @@ export async function GET(req: NextRequest) {
       .from('user_profiles').select('role').eq('id', user.id).single()
     if (profile?.role !== 'admin') return NextResponse.json({ error: 'Admin only' }, { status: 403 })
 
-    const [studentsRes, answersRes, pdfsRes] = await Promise.all([
+    const [studentsRes, answersRes, pdfsRes, sessionsRes] = await Promise.all([
       adminClient.from('user_profiles').select('id', { count: 'exact' }).eq('role', 'student'),
-      adminClient.from('exam_answers').select('score, created_at, user_id'),
+      adminClient.from('exam_answers').select('score, created_at, user_id, session_id'),
       adminClient.from('pdfs').select('id, course, semester, title'),
+      adminClient.from('exam_sessions').select('id, course'),
     ])
 
     const answers = answersRes.data || []
@@ -36,6 +37,38 @@ export async function GET(req: NextRequest) {
       else scoreDistribution.wrong++
     })
 
+    // פעילות יומית - 14 ימים אחרונים
+    const dailyActivity: { date: string; count: number }[] = []
+    for (let i = 13; i >= 0; i--) {
+      const day = new Date()
+      day.setDate(day.getDate() - i)
+      const dayStr = day.toISOString().slice(0, 10)
+      const count = answers.filter(a => a.created_at?.slice(0, 10) === dayStr).length
+      dailyActivity.push({ date: dayStr, count })
+    }
+
+    // ממוצע ציון לפי קורס
+    const sessionCourseMap: Record<string, string> = {}
+    ;(sessionsRes.data || []).forEach(s => { sessionCourseMap[s.id] = s.course })
+
+    const courseLabels: Record<string, string> = {
+      building_theory: 'תורת הבנייה',
+      building_legislation: 'תחיקת הבנייה',
+    }
+    const courseAgg: Record<string, { count: number; sum: number }> = {}
+    answers.forEach(a => {
+      const course = sessionCourseMap[a.session_id] || 'אחר'
+      if (!courseAgg[course]) courseAgg[course] = { count: 0, sum: 0 }
+      courseAgg[course].count++
+      courseAgg[course].sum += a.score || 0
+    })
+    const courseStats = Object.entries(courseAgg).map(([course, { count, sum }]) => ({
+      course,
+      label: courseLabels[course] || course,
+      count,
+      avgScore: count > 0 ? Math.round((sum / count) * 10) / 10 : 0,
+    }))
+
     return NextResponse.json({
       studentCount: studentsRes.count || 0,
       totalAnswers,
@@ -44,6 +77,8 @@ export async function GET(req: NextRequest) {
       pdfCount: pdfsRes.data?.length || 0,
       scoreDistribution,
       pdfs: pdfsRes.data || [],
+      dailyActivity,
+      courseStats,
     })
   } catch {
     return NextResponse.json({ error: 'Server error' }, { status: 500 })
