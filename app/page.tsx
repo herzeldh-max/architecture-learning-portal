@@ -10,21 +10,15 @@ export default function HomePage() {
         >
           <header className="hero-header py-5 px-6">
             <div className="max-w-5xl mx-auto flex items-center justify-between">
-              <div className="flex items-center gap-3">
-                <a href="https://www.tcb.ac.il" target="_blank" rel="noopener noreferrer">
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img
-                    src="/college-logo.png"
-                    alt="המכללה הטכנולוגית באר שבע"
-                    style={{ height: '56px', width: 'auto' }}
-                    className="object-contain rounded"
-                  />
-                </a>
-                <div>
-                  <h1 className="text-base md:text-lg font-bold leading-tight">פורטל לימוד - אדריכלות ועיצוב פנים</h1>
-                  <p className="text-xs md:text-sm opacity-75">המכללה הטכנולוגית בבאר שבע</p>
-                </div>
-              </div>
+              <a href="https://www.tcb.ac.il" target="_blank" rel="noopener noreferrer">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  src="/college-logo.png"
+                  alt="המכללה הטכנולוגית באר שבע"
+                  style={{ height: '56px', width: 'auto' }}
+                  className="object-contain rounded"
+                />
+              </a>
               <div className="flex gap-3">
                 <Link href="/login">
                   <button className="px-4 py-2 rounded-lg font-semibold border-2 border-white text-white hover:bg-white hover:text-blue-900 transition-colors">
@@ -42,6 +36,11 @@ export default function HomePage() {
               </div>
             </div>
           </header>
+
+          <div className="hero-content-top text-white text-center px-6 pt-8 md:pt-12">
+            <h1 className="text-xl md:text-2xl font-bold leading-tight">פורטל לימוד - אדריכלות ועיצוב פנים</h1>
+            <p className="text-sm md:text-base opacity-80">המכללה הטכנולוגית בבאר שבע</p>
+          </div>
 
           <div className="hero-content max-w-3xl mx-auto px-6 pb-20 md:pb-28 text-white text-center flex flex-col items-center">
             <h2 className="text-4xl md:text-6xl font-extrabold mb-5 leading-tight">
