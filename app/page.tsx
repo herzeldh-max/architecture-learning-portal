@@ -3,47 +3,47 @@ import Link from 'next/link'
 export default function HomePage() {
   return (
     <div className="min-h-screen flex flex-col">
-      <header style={{ backgroundColor: 'var(--primary)' }} className="text-white py-4 px-6 shadow-lg">
-        <div className="max-w-5xl mx-auto flex items-center justify-between">
-          <div>
-            <h1 className="text-xl font-bold">פורטל לימוד - אדריכלות ועיצוב פנים</h1>
-            <p className="text-sm opacity-75">המכללה הטכנולוגית בבאר שבע</p>
-          </div>
-          <div className="flex items-center gap-4">
-            <div className="flex gap-3">
-              <Link href="/login">
-                <button className="px-4 py-2 rounded-lg font-semibold border-2 border-white text-white hover:bg-white hover:text-blue-900 transition-colors">
-                  כניסה
-                </button>
-              </Link>
-              <Link href="/register">
-                <button
-                  className="px-4 py-2 rounded-lg font-semibold"
-                  style={{ backgroundColor: 'var(--secondary)', color: '#1a202c' }}
-                >
-                  הרשמה
-                </button>
-              </Link>
-            </div>
-            <a href="https://www.tcb.ac.il" target="_blank" rel="noopener noreferrer">
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img
-                src="/college-logo.png"
-                alt="המכללה הטכנולוגית באר שבע"
-                style={{ height: '64px', width: 'auto' }}
-                className="object-contain rounded"
-              />
-            </a>
-          </div>
-        </div>
-      </header>
-
       <main className="flex-1">
         <section
           className="hero-section"
-          style={{ backgroundImage: "url('/hero-architecture.jpg')" }}
+          style={{ backgroundImage: "url('/hero-architecture.png')" }}
         >
-          <div className="hero-content max-w-5xl mx-auto px-6 py-20 md:py-28 text-white">
+          <header className="hero-header py-5 px-6">
+            <div className="max-w-5xl mx-auto flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <a href="https://www.tcb.ac.il" target="_blank" rel="noopener noreferrer">
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img
+                    src="/college-logo.png"
+                    alt="המכללה הטכנולוגית באר שבע"
+                    style={{ height: '56px', width: 'auto' }}
+                    className="object-contain rounded"
+                  />
+                </a>
+                <div>
+                  <h1 className="text-base md:text-lg font-bold leading-tight">פורטל לימוד - אדריכלות ועיצוב פנים</h1>
+                  <p className="text-xs md:text-sm opacity-75">המכללה הטכנולוגית בבאר שבע</p>
+                </div>
+              </div>
+              <div className="flex gap-3">
+                <Link href="/login">
+                  <button className="px-4 py-2 rounded-lg font-semibold border-2 border-white text-white hover:bg-white hover:text-blue-900 transition-colors">
+                    כניסה
+                  </button>
+                </Link>
+                <Link href="/register">
+                  <button
+                    className="px-4 py-2 rounded-lg font-semibold"
+                    style={{ backgroundColor: 'var(--secondary)', color: '#1a202c' }}
+                  >
+                    הרשמה
+                  </button>
+                </Link>
+              </div>
+            </div>
+          </header>
+
+          <div className="hero-content max-w-5xl mx-auto px-6 pb-20 md:pb-28 text-white">
             <h2 className="text-4xl md:text-6xl font-extrabold mb-5 leading-tight">
               ברוכים הבאים לפורטל הלימוד
             </h2>
