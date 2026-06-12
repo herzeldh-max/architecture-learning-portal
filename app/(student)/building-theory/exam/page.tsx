@@ -1,8 +1,9 @@
 'use client'
 
-import { useState, useEffect, useCallback } from 'react'
+import { useState } from 'react'
 import { useSearchParams } from 'next/navigation'
 import { Suspense } from 'react'
+import { useLanguage } from '@/components/LanguageProvider'
 
 interface MultipleQuestion {
   type: 'multiple'
@@ -28,6 +29,7 @@ interface AnswerResult {
 function ExamContent() {
   const searchParams = useSearchParams()
   const initSemester = searchParams.get('semester') || 'both'
+  const { t, lang } = useLanguage()
 
   const [phase, setPhase] = useState<'setup' | 'question' | 'result' | 'summary'>('setup')
   const [semester, setSemester] = useState(initSemester)
@@ -51,7 +53,7 @@ function ExamContent() {
       const res = await fetch('/api/theory/generate-question', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ semester, questionType: qType, sessionId: null, isFirst: true }),
+        body: JSON.stringify({ semester, questionType: qType, sessionId: null, isFirst: true, language: lang }),
       })
       const data = await res.json()
       if (data.question) {
@@ -75,7 +77,7 @@ function ExamContent() {
       const res = await fetch('/api/theory/generate-question', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ semester, questionType: qType, sessionId }),
+        body: JSON.stringify({ semester, questionType: qType, sessionId, language: lang }),
       })
       const data = await res.json()
       if (data.question) {
@@ -104,6 +106,7 @@ function ExamContent() {
           question: currentQ,
           studentAnswer,
           sessionId,
+          language: lang,
         }),
       })
       const data = await res.json()
@@ -120,14 +123,14 @@ function ExamContent() {
   if (phase === 'setup') {
     return (
       <div>
-        <h1 className="text-2xl font-bold mb-6" style={{ color: 'var(--primary)' }}>הכנה למבחן - תורת הבנייה</h1>
+        <h1 className="text-2xl font-bold mb-6" style={{ color: 'var(--primary)' }}>{t.exam.title}</h1>
         <div className="card p-6 max-w-lg mx-auto">
-          <h2 className="font-bold mb-4">הגדרות תרגול</h2>
+          <h2 className="font-bold mb-4">{t.exam.settingsTitle}</h2>
           <div className="space-y-4">
             <div>
-              <label className="block text-sm font-medium mb-2">סמסטר</label>
+              <label className="block text-sm font-medium mb-2">{t.exam.semester}</label>
               <div className="flex gap-2">
-                {[['A', "סמסטר א'"], ['B', "סמסטר ב'"], ['both', 'שניהם']].map(([v, l]) => (
+                {[['A', t.exam.semesterA], ['B', t.exam.semesterB], ['both', t.exam.bothSemesters]].map(([v, l]) => (
                   <button key={v} onClick={() => setSemester(v)}
                     className={`flex-1 py-2 rounded-lg text-sm font-medium border-2 transition-colors ${semester === v ? 'border-blue-800 text-white' : 'border-gray-200 text-gray-600'}`}
                     style={semester === v ? { backgroundColor: 'var(--primary)', borderColor: 'var(--primary)' } : {}}>
@@ -137,9 +140,9 @@ function ExamContent() {
               </div>
             </div>
             <div>
-              <label className="block text-sm font-medium mb-2">סוג שאלות</label>
+              <label className="block text-sm font-medium mb-2">{t.exam.questionType}</label>
               <div className="flex gap-2">
-                {[['mixed', 'מעורב'], ['multiple', 'אמריקאיות'], ['open', 'פתוחות']].map(([v, l]) => (
+                {[['mixed', t.exam.mixed], ['multiple', t.exam.multiple], ['open', t.exam.open]].map(([v, l]) => (
                   <button key={v} onClick={() => setQType(v as typeof qType)}
                     className={`flex-1 py-2 rounded-lg text-sm font-medium border-2 transition-colors ${qType === v ? 'text-white' : 'border-gray-200 text-gray-600'}`}
                     style={qType === v ? { backgroundColor: 'var(--primary)', borderColor: 'var(--primary)' } : {}}>
@@ -151,7 +154,7 @@ function ExamContent() {
           </div>
           <button onClick={startSession} disabled={loading}
             className="btn-primary w-full justify-center py-3 mt-6 text-base">
-            {loading ? <><span className="spinner" style={{ borderTopColor: 'white' }} /> מכין שאלה...</> : 'התחל תרגול'}
+            {loading ? <><span className="spinner" style={{ borderTopColor: 'white' }} /> {t.exam.preparing}</> : t.exam.start}
           </button>
           {errorMsg && (
             <p className="text-sm mt-3 text-center" style={{ color: 'var(--error)' }}>{errorMsg}</p>
@@ -164,12 +167,12 @@ function ExamContent() {
   return (
     <div>
       <div className="flex items-center justify-between mb-4">
-        <h1 className="text-xl font-bold" style={{ color: 'var(--primary)' }}>הכנה למבחן</h1>
+        <h1 className="text-xl font-bold" style={{ color: 'var(--primary)' }}>{t.exam.title}</h1>
         <div className="flex items-center gap-4 text-sm">
           {qCount > 0 && (
             <>
-              <span style={{ color: 'var(--text-muted)' }}>שאלות: {qCount}</span>
-              <span style={{ color: 'var(--text-muted)' }}>סה"כ: {totalScore} נקודות</span>
+              <span style={{ color: 'var(--text-muted)' }}>{t.exam.questionsLabel}: {qCount}</span>
+              <span style={{ color: 'var(--text-muted)' }}>{t.exam.totalLabel}: {totalScore} {t.exam.pointsSuffix}</span>
               <span className="font-bold" style={{ color: avg >= 70 ? 'var(--success)' : avg >= 50 ? 'var(--warning)' : 'var(--error)' }}>
                 {avg}%
               </span>
@@ -177,7 +180,7 @@ function ExamContent() {
           )}
           <button onClick={() => { setPhase('setup'); setQCount(0); setTotalScore(0); setSessionId(null) }}
             className="text-sm px-3 py-1 rounded border" style={{ borderColor: 'var(--border)' }}>
-            סיום
+            {t.exam.finish}
           </button>
         </div>
       </div>
@@ -185,7 +188,7 @@ function ExamContent() {
       {loading ? (
         <div className="card p-12 text-center">
           <div className="spinner mx-auto mb-3" style={{ width: '2rem', height: '2rem' }}></div>
-          <p style={{ color: 'var(--text-muted)' }}>מכין שאלה חדשה...</p>
+          <p style={{ color: 'var(--text-muted)' }}>{t.exam.preparingNew}</p>
         </div>
       ) : errorMsg ? (
         <div className="card p-8 text-center">
@@ -198,9 +201,9 @@ function ExamContent() {
               backgroundColor: currentQ.type === 'multiple' ? '#ebf8ff' : '#f0fff4',
               color: currentQ.type === 'multiple' ? '#2b6cb0' : '#276749'
             }}>
-              {currentQ.type === 'multiple' ? 'אמריקאית' : 'פתוחה'}
+              {currentQ.type === 'multiple' ? t.exam.multipleBadge : t.exam.openBadge}
             </span>
-            <span className="text-xs" style={{ color: 'var(--text-muted)' }}>שאלה {qCount + 1}</span>
+            <span className="text-xs" style={{ color: 'var(--text-muted)' }}>{t.exam.questionNumber.replace('{n}', String(qCount + 1))}</span>
           </div>
 
           <h2 className="text-lg font-semibold mb-5 leading-relaxed">{currentQ.question}</h2>
@@ -219,7 +222,7 @@ function ExamContent() {
                   <button key={i} onClick={() => phase === 'question' && setSelectedIdx(i)}
                     className="w-full text-right p-3 rounded-lg transition-colors text-sm"
                     style={style} disabled={phase === 'result'}>
-                    <span className="font-bold ml-2">{['א', 'ב', 'ג', 'ד'][i]}.</span> {choice}
+                    <span className="font-bold ml-2">{t.exam.choiceLetters[i]}.</span> {choice}
                     {phase === 'result' && i === currentQ.correctIndex && ' ✓'}
                   </button>
                 )
@@ -232,14 +235,14 @@ function ExamContent() {
               disabled={phase === 'result'}
               className="input-field mb-5"
               rows={5}
-              placeholder="כתב את תשובתך כאן..."
+              placeholder={t.exam.answerPlaceholder}
             />
           )}
 
           {phase === 'question' && (
             <button onClick={submitAnswer} disabled={submitting || (currentQ.type === 'multiple' ? selectedIdx === null : !answer.trim())}
               className="btn-primary px-6 py-2">
-              {submitting ? <><span className="spinner" style={{ borderTopColor: 'white' }} /> בודק...</> : 'שלח תשובה'}
+              {submitting ? <><span className="spinner" style={{ borderTopColor: 'white' }} /> {t.exam.checking}</> : t.exam.submitAnswer}
             </button>
           )}
 
@@ -251,19 +254,19 @@ function ExamContent() {
                     {result.score}/10
                   </span>
                   <span className="font-semibold">
-                    {result.score === 10 ? 'תשובה נכונה!' : result.score === 5 ? 'תשובה חלקית' : 'תשובה שגויה'}
+                    {result.score === 10 ? t.exam.correct : result.score === 5 ? t.exam.partial : t.exam.incorrect}
                   </span>
                 </div>
                 <p className="text-sm">{result.feedback}</p>
                 {result.score < 10 && result.fullAnswer && (
                   <div className="mt-3 pt-3 border-t">
-                    <p className="font-semibold text-sm mb-1">התשובה הנכונה:</p>
+                    <p className="font-semibold text-sm mb-1">{t.exam.correctAnswerLabel}</p>
                     <p className="text-sm whitespace-pre-wrap">{result.fullAnswer}</p>
                   </div>
                 )}
               </div>
               <button onClick={nextQuestion} className="btn-primary">
-                שאלה הבאה ›
+                {t.exam.nextQuestion}
               </button>
             </div>
           )}

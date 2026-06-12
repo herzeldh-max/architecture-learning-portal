@@ -1,5 +1,7 @@
 import { createClient } from '@/lib/supabase-server'
 import Link from 'next/link'
+import { cookies } from 'next/headers'
+import { getDictionary, isValidLang } from '@/lib/i18n'
 
 export default async function BuildingTheoryPage() {
   const supabase = await createClient()
@@ -15,47 +17,53 @@ export default async function BuildingTheoryPage() {
   const semesterB = pdfs?.filter(p => p.semester === 'B') || []
   const both = pdfs?.filter(p => p.semester === 'both') || []
 
+  const cookieStore = await cookies()
+  const langCookie = cookieStore.get('lang')?.value
+  const lang = isValidLang(langCookie) ? langCookie : 'he'
+  const t = getDictionary(lang)
+  const dateLocale = lang === 'ar' ? 'ar' : 'he-IL'
+
   return (
     <div>
       <div className="flex items-center justify-between mb-6">
         <div>
-          <h1 className="text-2xl font-bold" style={{ color: 'var(--primary)' }}>תורת הבנייה</h1>
-          <p style={{ color: 'var(--text-muted)' }}>קורס לשנה א' | מצגות וחומרי לימוד</p>
+          <h1 className="text-2xl font-bold" style={{ color: 'var(--primary)' }}>{t.buildingTheory.title}</h1>
+          <p style={{ color: 'var(--text-muted)' }}>{t.buildingTheory.subtitle}</p>
         </div>
         <div className="flex gap-3">
           <Link href="/building-theory/chat">
-            <button className="btn-secondary">שאלות חופשיות</button>
+            <button className="btn-secondary">{t.buildingTheory.chatButton}</button>
           </Link>
           <Link href="/building-theory/exam">
-            <button className="btn-primary">הכנה למבחן</button>
+            <button className="btn-primary">{t.buildingTheory.examButton}</button>
           </Link>
         </div>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-        <QuickLink href="/building-theory/chat" icon="💬" title="שאלות חופשיות"
-          desc="שאל כל שאלה על החומר" />
-        <QuickLink href="/building-theory/exam?semester=A" icon="📝" title='הכנה למבחן - סמסטר א'
-          desc="תרגול שאלות מסמסטר א'" />
-        <QuickLink href="/building-theory/exam?semester=B" icon="📝" title='הכנה למבחן - סמסטר ב'
-          desc="תרגול שאלות מסמסטר ב'" />
+        <QuickLink href="/building-theory/chat" icon="💬" title={t.buildingTheory.quickLinks.chat.title}
+          desc={t.buildingTheory.quickLinks.chat.desc} />
+        <QuickLink href="/building-theory/exam?semester=A" icon="📝" title={t.buildingTheory.quickLinks.examA.title}
+          desc={t.buildingTheory.quickLinks.examA.desc} />
+        <QuickLink href="/building-theory/exam?semester=B" icon="📝" title={t.buildingTheory.quickLinks.examB.title}
+          desc={t.buildingTheory.quickLinks.examB.desc} />
       </div>
 
       {pdfs && pdfs.length === 0 && (
         <div className="card p-8 text-center" style={{ color: 'var(--text-muted)' }}>
-          <p className="text-lg mb-2">אין עדיין חומרי לימוד מועלים</p>
-          <p className="text-sm">המרצה יעלה בקרוב את מצגות הקורס</p>
+          <p className="text-lg mb-2">{t.buildingTheory.noMaterials}</p>
+          <p className="text-sm">{t.buildingTheory.noMaterialsSub}</p>
         </div>
       )}
 
       {semesterA.length > 0 && (
         <div className="mb-6">
           <h2 className="text-lg font-bold mb-3 flex items-center gap-2" style={{ color: 'var(--primary)' }}>
-            <span className="w-7 h-7 rounded-full text-white text-sm flex items-center justify-center font-bold" style={{ backgroundColor: 'var(--primary)' }}>א</span>
-            סמסטר א'
+            <span className="w-7 h-7 rounded-full text-white text-sm flex items-center justify-center font-bold" style={{ backgroundColor: 'var(--primary)' }}>{t.exam.choiceLetters[0]}</span>
+            {t.buildingTheory.semesterA}
           </h2>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-            {semesterA.map(pdf => <PDFCard key={pdf.id} pdf={pdf} />)}
+            {semesterA.map(pdf => <PDFCard key={pdf.id} pdf={pdf} dateLocale={dateLocale} />)}
           </div>
         </div>
       )}
@@ -63,20 +71,20 @@ export default async function BuildingTheoryPage() {
       {semesterB.length > 0 && (
         <div className="mb-6">
           <h2 className="text-lg font-bold mb-3 flex items-center gap-2" style={{ color: 'var(--primary)' }}>
-            <span className="w-7 h-7 rounded-full text-white text-sm flex items-center justify-center font-bold" style={{ backgroundColor: 'var(--primary)' }}>ב</span>
-            סמסטר ב'
+            <span className="w-7 h-7 rounded-full text-white text-sm flex items-center justify-center font-bold" style={{ backgroundColor: 'var(--primary)' }}>{t.exam.choiceLetters[1]}</span>
+            {t.buildingTheory.semesterB}
           </h2>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-            {semesterB.map(pdf => <PDFCard key={pdf.id} pdf={pdf} />)}
+            {semesterB.map(pdf => <PDFCard key={pdf.id} pdf={pdf} dateLocale={dateLocale} />)}
           </div>
         </div>
       )}
 
       {both.length > 0 && (
         <div className="mb-6">
-          <h2 className="text-lg font-bold mb-3" style={{ color: 'var(--primary)' }}>חומר משני הסמסטרים</h2>
+          <h2 className="text-lg font-bold mb-3" style={{ color: 'var(--primary)' }}>{t.buildingTheory.bothSemesters}</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-            {both.map(pdf => <PDFCard key={pdf.id} pdf={pdf} />)}
+            {both.map(pdf => <PDFCard key={pdf.id} pdf={pdf} dateLocale={dateLocale} />)}
           </div>
         </div>
       )}
@@ -96,8 +104,8 @@ function QuickLink({ href, icon, title, desc }: { href: string; icon: string; ti
   )
 }
 
-function PDFCard({ pdf }: { pdf: { id: string; title: string; semester: string; uploaded_at: string; file_size: number } }) {
-  const date = new Date(pdf.uploaded_at).toLocaleDateString('he-IL')
+function PDFCard({ pdf, dateLocale }: { pdf: { id: string; title: string; semester: string; uploaded_at: string; file_size: number }; dateLocale: string }) {
+  const date = new Date(pdf.uploaded_at).toLocaleDateString(dateLocale)
   const size = pdf.file_size ? `${Math.round(pdf.file_size / 1024)} KB` : ''
   return (
     <div className="card p-4 flex items-center gap-3">

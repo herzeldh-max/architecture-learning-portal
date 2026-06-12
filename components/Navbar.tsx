@@ -4,6 +4,8 @@ import Link from 'next/link'
 import { useRouter, usePathname } from 'next/navigation'
 import { useState } from 'react'
 import { createClient } from '@/lib/supabase'
+import { useLanguage } from './LanguageProvider'
+import LanguageSwitcher from './LanguageSwitcher'
 
 interface NavbarProps {
   userName: string
@@ -14,6 +16,7 @@ export default function Navbar({ userName, role }: NavbarProps) {
   const router = useRouter()
   const pathname = usePathname()
   const [menuOpen, setMenuOpen] = useState(false)
+  const { t } = useLanguage()
 
   async function handleLogout() {
     const supabase = createClient()
@@ -23,16 +26,18 @@ export default function Navbar({ userName, role }: NavbarProps) {
   }
 
   const studentLinks = [
-    { href: '/dashboard', label: 'דף הבית' },
-    { href: '/building-theory', label: 'תורת הבנייה' },
-    { href: '/building-legislation/chat', label: 'תחיקת הבנייה' },
+    { href: '/dashboard', label: t.nav.home },
+    { href: '/building-theory', label: t.nav.buildingTheory },
+    { href: '/building-legislation/chat', label: t.nav.buildingLegislation },
+    { href: '/dictionary', label: t.nav.dictionary },
   ]
 
   const adminLinks = [
-    { href: '/dashboard', label: 'דף הבית' },
-    { href: '/building-theory', label: 'תורת הבנייה' },
-    { href: '/building-legislation/chat', label: 'תחיקת הבנייה' },
-    { href: '/admin', label: 'ניהול' },
+    { href: '/dashboard', label: t.nav.home },
+    { href: '/building-theory', label: t.nav.buildingTheory },
+    { href: '/building-legislation/chat', label: t.nav.buildingLegislation },
+    { href: '/dictionary', label: t.nav.dictionary },
+    { href: '/admin', label: t.nav.admin },
   ]
 
   const links = role === 'admin' ? adminLinks : studentLinks
@@ -42,7 +47,7 @@ export default function Navbar({ userName, role }: NavbarProps) {
       <div className="max-w-6xl mx-auto px-4">
         <div className="flex items-center justify-between h-14">
           <Link href="/dashboard" className="font-bold text-base truncate max-w-xs">
-            פורטל לימוד - אדריכלות
+            {t.nav.brand}
           </Link>
 
           <div className="hidden md:flex items-center gap-1">
@@ -62,14 +67,15 @@ export default function Navbar({ userName, role }: NavbarProps) {
           </div>
 
           <div className="hidden md:flex items-center gap-3">
+            <LanguageSwitcher variant="dark" />
             <span className="text-sm opacity-75 truncate max-w-32">{userName}</span>
             {role === 'admin' && (
               <span className="text-xs px-2 py-0.5 rounded-full font-medium" style={{ backgroundColor: 'var(--secondary)', color: '#1a202c' }}>
-                מנהל
+                {t.nav.adminBadge}
               </span>
             )}
             <button onClick={handleLogout} className="text-sm px-3 py-1.5 rounded-lg border border-white/30 hover:bg-white/10 transition-colors">
-              יציאה
+              {t.common.logout}
             </button>
             <div className="h-10 w-px bg-white/20 mx-1" />
             <a href="https://www.tcb.ac.il" target="_blank" rel="noopener noreferrer">
@@ -98,9 +104,12 @@ export default function Navbar({ userName, role }: NavbarProps) {
                 {l.label}
               </Link>
             ))}
+            <div className="px-3 py-2">
+              <LanguageSwitcher variant="dark" />
+            </div>
             <div className="border-t border-white/20 mt-2 pt-2 flex items-center justify-between px-3">
               <span className="text-sm opacity-75">{userName}</span>
-              <button onClick={handleLogout} className="text-sm underline opacity-75 hover:opacity-100">יציאה</button>
+              <button onClick={handleLogout} className="text-sm underline opacity-75 hover:opacity-100">{t.common.logout}</button>
             </div>
           </div>
         )}

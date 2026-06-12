@@ -9,7 +9,7 @@ export async function POST(req: NextRequest) {
     const { data: { user } } = await supabase.auth.getUser()
     if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
 
-    const { message, history } = await req.json()
+    const { message, history, language } = await req.json()
 
     const { data: pdfs } = await supabase
       .from('pdfs')
@@ -24,7 +24,7 @@ export async function POST(req: NextRequest) {
       `מצגת: ${p.title} (סמסטר ${p.semester === 'A' ? 'א' : p.semester === 'B' ? 'ב' : 'שניהם'})\n${p.extracted_text?.slice(0, 5000)}`
     ) || []
 
-    const systemPrompt = buildTheorySystemPrompt(pdfTexts)
+    const systemPrompt = buildTheorySystemPrompt(pdfTexts, language === 'ar' ? 'ar' : 'he')
 
     const historyMsgs = (history || []).slice(-8).map((m: { role: string; content: string }) => ({
       role: m.role as 'user' | 'assistant',

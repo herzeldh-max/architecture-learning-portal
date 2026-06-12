@@ -8,7 +8,8 @@ export async function POST(req: NextRequest) {
     const { data: { user } } = await supabase.auth.getUser()
     if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
 
-    const { question, studentAnswer, sessionId } = await req.json()
+    const { question, studentAnswer, sessionId, language } = await req.json()
+    const lang: 'he' | 'ar' = language === 'ar' ? 'ar' : 'he'
 
     let score: 0 | 5 | 10
     let feedback: string
@@ -20,11 +21,22 @@ export async function POST(req: NextRequest) {
       const isCorrect = selectedChoice === correctChoice
 
       score = isCorrect ? 10 : 0
-      feedback = isCorrect
-        ? `נכון! ${question.explanation}`
-        : `לא נכון. בחרת: "${selectedChoice}"`
-      fullAnswer = isCorrect ? '' : `התשובה הנכונה: "${correctChoice}"\n\n${question.explanation}`
+      if (lang === 'ar') {
+        feedback = isCorrect
+          ? `صحيح! ${question.explanation}`
+          : `غير صحيح. لقد اخترت: "${selectedChoice}"`
+        fullAnswer = isCorrect ? '' : `الإجابة الصحيحة: "${correctChoice}"\n\n${question.explanation}`
+      } else {
+        feedback = isCorrect
+          ? `נכון! ${question.explanation}`
+          : `לא נכון. בחרת: "${selectedChoice}"`
+        fullAnswer = isCorrect ? '' : `התשובה הנכונה: "${correctChoice}"\n\n${question.explanation}`
+      }
     } else {
+      const languageInstruction = lang === 'ar'
+        ? '\n\nחשוב: כתוב את ה-feedback וה-fullAnswer בשפה הערבית הספרותית (فصحى) בלבד, גם אם תשובת הסטודנט כתובה בעברית או בערבית.'
+        : ''
+
       const prompt = `אתה מרצה לתורת הבנייה. הערך את תשובת הסטודנט.
 
 שאלה: ${question.question}
@@ -44,9 +56,9 @@ ${question.keyPoints?.map((p: string, i: number) => `${i + 1}. ${p}`).join('\n')
 החזר JSON בדיוק:
 {
   "score": 0 | 5 | 10,
-  "feedback": "משוב קצר ומפורט בעברית",
-  "fullAnswer": "התשובה הנכונה המלאה בעברית"
-}`
+  "feedback": "משוב קצר ומפורט",
+  "fullAnswer": "התשובה הנכונה המלאה"
+}${languageInstruction}`
 
       const raw = await chat(
         'אתה מרצה מקצועי. תן הערכה הוגנת ומפורטת.',

@@ -4,9 +4,12 @@ import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { createClient } from '@/lib/supabase'
+import { useLanguage } from '@/components/LanguageProvider'
+import LanguageSwitcher from '@/components/LanguageSwitcher'
 
 export default function RegisterPage() {
   const router = useRouter()
+  const { t } = useLanguage()
   const [fullName, setFullName] = useState('')
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
@@ -17,8 +20,8 @@ export default function RegisterPage() {
   async function handleRegister(e: React.FormEvent) {
     e.preventDefault()
     setError('')
-    if (password !== password2) { setError('הסיסמאות אינן תואמות'); return }
-    if (password.length < 6) { setError('הסיסמה חייבת להכיל לפחות 6 תווים'); return }
+    if (password !== password2) { setError(t.auth.register.errorMismatch); return }
+    if (password.length < 6) { setError(t.auth.register.errorShort); return }
     setLoading(true)
 
     const res = await fetch('/api/auth/register', {
@@ -28,7 +31,7 @@ export default function RegisterPage() {
     })
     const data = await res.json()
     if (!res.ok) {
-      setError(data.error || 'שגיאה בהרשמה')
+      setError(data.error || t.auth.register.errorGeneric)
       setLoading(false)
       return
     }
@@ -36,7 +39,7 @@ export default function RegisterPage() {
     const supabase = createClient()
     const { error: signInError } = await supabase.auth.signInWithPassword({ email, password })
     if (signInError) {
-      setError('נרשמת בהצלחה! אנא התחבר.')
+      setError(t.auth.register.successNeedsLogin)
       setLoading(false)
       router.push('/login')
       return
@@ -48,7 +51,8 @@ export default function RegisterPage() {
   return (
     <div className="min-h-screen flex items-center justify-center p-4" style={{ backgroundColor: 'var(--bg)' }}>
       <div className="card p-8 w-full max-w-md">
-        <div className="flex justify-end mb-4">
+        <div className="flex justify-between items-center mb-4">
+          <LanguageSwitcher />
           <a href="https://www.tcb.ac.il" target="_blank" rel="noopener noreferrer">
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
@@ -60,30 +64,30 @@ export default function RegisterPage() {
           </a>
         </div>
         <div className="text-center mb-8">
-          <h1 className="text-2xl font-bold mb-1" style={{ color: 'var(--primary)' }}>הרשמה לפורטל</h1>
-          <p className="text-sm" style={{ color: 'var(--text-muted)' }}>פורטל לימוד - אדריכלות ועיצוב פנים</p>
+          <h1 className="text-2xl font-bold mb-1" style={{ color: 'var(--primary)' }}>{t.auth.register.title}</h1>
+          <p className="text-sm" style={{ color: 'var(--text-muted)' }}>{t.auth.register.subtitle}</p>
         </div>
 
         <form onSubmit={handleRegister} className="space-y-4">
           <div>
-            <label className="block text-sm font-medium mb-1">שם מלא</label>
+            <label className="block text-sm font-medium mb-1">{t.auth.register.fullName}</label>
             <input value={fullName} onChange={e => setFullName(e.target.value)}
-              className="input-field" placeholder="ישראל ישראלי" required />
+              className="input-field" placeholder={t.auth.register.fullNamePlaceholder} required />
           </div>
           <div>
-            <label className="block text-sm font-medium mb-1">אימייל</label>
+            <label className="block text-sm font-medium mb-1">{t.auth.register.email}</label>
             <input type="email" value={email} onChange={e => setEmail(e.target.value)}
               className="input-field" placeholder="your@email.com" required dir="ltr" />
           </div>
           <div>
-            <label className="block text-sm font-medium mb-1">סיסמה</label>
+            <label className="block text-sm font-medium mb-1">{t.auth.register.password}</label>
             <input type="password" value={password} onChange={e => setPassword(e.target.value)}
-              className="input-field" placeholder="לפחות 6 תווים" required dir="ltr" />
+              className="input-field" placeholder={t.auth.register.passwordPlaceholder} required dir="ltr" />
           </div>
           <div>
-            <label className="block text-sm font-medium mb-1">אימות סיסמה</label>
+            <label className="block text-sm font-medium mb-1">{t.auth.register.confirmPassword}</label>
             <input type="password" value={password2} onChange={e => setPassword2(e.target.value)}
-              className="input-field" placeholder="הכנס שוב את הסיסמה" required dir="ltr" />
+              className="input-field" placeholder={t.auth.register.confirmPasswordPlaceholder} required dir="ltr" />
           </div>
 
           {error && (
@@ -93,16 +97,16 @@ export default function RegisterPage() {
           )}
 
           <button type="submit" disabled={loading} className="btn-primary w-full justify-center py-3 text-base">
-            {loading ? <><span className="spinner" style={{ borderTopColor: 'white' }} /> נרשם...</> : 'הרשמה'}
+            {loading ? <><span className="spinner" style={{ borderTopColor: 'white' }} /> {t.auth.register.submitting}</> : t.auth.register.submit}
           </button>
         </form>
 
         <p className="text-center text-sm mt-6" style={{ color: 'var(--text-muted)' }}>
-          כבר רשום?{' '}
-          <Link href="/login" className="font-semibold" style={{ color: 'var(--primary)' }}>כניסה</Link>
+          {t.auth.register.hasAccount}{' '}
+          <Link href="/login" className="font-semibold" style={{ color: 'var(--primary)' }}>{t.auth.register.loginLink}</Link>
         </p>
         <p className="text-center mt-2">
-          <Link href="/" className="text-sm" style={{ color: 'var(--text-muted)' }}>חזרה לדף הבית</Link>
+          <Link href="/" className="text-sm" style={{ color: 'var(--text-muted)' }}>{t.common.backToHome}</Link>
         </p>
       </div>
     </div>

@@ -42,11 +42,11 @@ export async function POST(req: NextRequest) {
     const { data: { user } } = await supabase.auth.getUser()
     if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
 
-    const { message } = await req.json()
+    const { message, language } = await req.json()
 
     const searchResults = await searchTavily(message)
 
-    const systemPrompt = buildLegislationSystemPrompt()
+    const systemPrompt = buildLegislationSystemPrompt(language === 'ar' ? 'ar' : 'he')
 
     const userContent = searchResults
       ? `שאלה: ${message}\n\nתוצאות חיפוש ממקורות רשמיים:\n${searchResults}\n\nענה על השאלה על פי המקורות הנ"ל. אם המידע לא מספיק, ציין זאת.`

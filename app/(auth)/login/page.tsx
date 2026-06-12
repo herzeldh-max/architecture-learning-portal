@@ -4,9 +4,12 @@ import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { createClient } from '@/lib/supabase'
+import { useLanguage } from '@/components/LanguageProvider'
+import LanguageSwitcher from '@/components/LanguageSwitcher'
 
 export default function LoginPage() {
   const router = useRouter()
+  const { t } = useLanguage()
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [error, setError] = useState('')
@@ -19,7 +22,7 @@ export default function LoginPage() {
     const supabase = createClient()
     const { error } = await supabase.auth.signInWithPassword({ email, password })
     if (error) {
-      setError('אימייל או סיסמה שגויים')
+      setError(t.auth.login.error)
       setLoading(false)
     } else {
       router.refresh()
@@ -30,7 +33,8 @@ export default function LoginPage() {
   return (
     <div className="min-h-screen flex items-center justify-center p-4" style={{ backgroundColor: 'var(--bg)' }}>
       <div className="card p-8 w-full max-w-md">
-        <div className="flex justify-end mb-4">
+        <div className="flex justify-between items-center mb-4">
+          <LanguageSwitcher />
           <a href="https://www.tcb.ac.il" target="_blank" rel="noopener noreferrer">
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
@@ -42,13 +46,13 @@ export default function LoginPage() {
           </a>
         </div>
         <div className="text-center mb-8">
-          <h1 className="text-2xl font-bold mb-1" style={{ color: 'var(--primary)' }}>כניסה לפורטל</h1>
-          <p className="text-sm" style={{ color: 'var(--text-muted)' }}>פורטל לימוד - אדריכלות ועיצוב פנים</p>
+          <h1 className="text-2xl font-bold mb-1" style={{ color: 'var(--primary)' }}>{t.auth.login.title}</h1>
+          <p className="text-sm" style={{ color: 'var(--text-muted)' }}>{t.auth.login.subtitle}</p>
         </div>
 
         <form onSubmit={handleLogin} className="space-y-4">
           <div>
-            <label className="block text-sm font-medium mb-1">אימייל</label>
+            <label className="block text-sm font-medium mb-1">{t.auth.login.email}</label>
             <input
               type="email"
               value={email}
@@ -60,7 +64,7 @@ export default function LoginPage() {
             />
           </div>
           <div>
-            <label className="block text-sm font-medium mb-1">סיסמה</label>
+            <label className="block text-sm font-medium mb-1">{t.auth.login.password}</label>
             <input
               type="password"
               value={password}
@@ -79,18 +83,18 @@ export default function LoginPage() {
           )}
 
           <button type="submit" disabled={loading} className="btn-primary w-full justify-center py-3 text-base">
-            {loading ? <><span className="spinner" style={{ borderTopColor: 'white' }} /> מתחבר...</> : 'כניסה'}
+            {loading ? <><span className="spinner" style={{ borderTopColor: 'white' }} /> {t.auth.login.submitting}</> : t.auth.login.submit}
           </button>
         </form>
 
         <p className="text-center text-sm mt-6" style={{ color: 'var(--text-muted)' }}>
-          אין לך חשבון?{' '}
+          {t.auth.login.noAccount}{' '}
           <Link href="/register" className="font-semibold" style={{ color: 'var(--primary)' }}>
-            הרשמה
+            {t.auth.login.registerLink}
           </Link>
         </p>
         <p className="text-center mt-2">
-          <Link href="/" className="text-sm" style={{ color: 'var(--text-muted)' }}>חזרה לדף הבית</Link>
+          <Link href="/" className="text-sm" style={{ color: 'var(--text-muted)' }}>{t.common.backToHome}</Link>
         </p>
       </div>
     </div>

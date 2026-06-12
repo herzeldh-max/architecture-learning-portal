@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useRef, useEffect } from 'react'
+import { useLanguage } from '@/components/LanguageProvider'
 
 interface Message {
   role: 'user' | 'assistant'
@@ -8,8 +9,9 @@ interface Message {
 }
 
 export default function TheoryChatPage() {
+  const { t, lang } = useLanguage()
   const [messages, setMessages] = useState<Message[]>([
-    { role: 'assistant', content: 'שלום! אני עוזר הלימוד לקורס תורת הבנייה. שאל אותי כל שאלה על החומר - אענה על פי המצגות ועל פי ידע מקצועי.' }
+    { role: 'assistant', content: t.theoryChat.initialMessage }
   ])
   const [input, setInput] = useState('')
   const [loading, setLoading] = useState(false)
@@ -35,12 +37,13 @@ export default function TheoryChatPage() {
         body: JSON.stringify({
           message: userMsg,
           history: messages.slice(-8),
+          language: lang,
         }),
       })
       const data = await res.json()
-      setMessages(prev => [...prev, { role: 'assistant', content: data.reply || 'אירעה שגיאה, נסה שוב.' }])
+      setMessages(prev => [...prev, { role: 'assistant', content: data.reply || t.theoryChat.errorRetry }])
     } catch {
-      setMessages(prev => [...prev, { role: 'assistant', content: 'אירעה שגיאה בחיבור לשרת.' }])
+      setMessages(prev => [...prev, { role: 'assistant', content: t.theoryChat.errorConnection }])
     } finally {
       setLoading(false)
     }
@@ -49,15 +52,15 @@ export default function TheoryChatPage() {
   return (
     <div>
       <div className="flex items-center gap-3 mb-4">
-        <a href="/building-theory" className="text-sm" style={{ color: 'var(--text-muted)' }}>תורת הבנייה</a>
+        <a href="/building-theory" className="text-sm" style={{ color: 'var(--text-muted)' }}>{t.theoryChat.breadcrumb}</a>
         <span style={{ color: 'var(--text-muted)' }}>›</span>
-        <span className="text-sm font-medium">שאלות חופשיות</span>
+        <span className="text-sm font-medium">{t.theoryChat.title}</span>
       </div>
 
       <div className="card overflow-hidden" style={{ height: 'calc(100vh - 200px)', display: 'flex', flexDirection: 'column' }}>
         <div className="p-4 border-b" style={{ backgroundColor: 'var(--primary)', color: 'white' }}>
-          <h1 className="font-bold">💬 שאלות על תורת הבנייה</h1>
-          <p className="text-xs opacity-75">מענה מבוסס מצגות הקורס + ידע מקצועי</p>
+          <h1 className="font-bold">{t.theoryChat.chatTitle}</h1>
+          <p className="text-xs opacity-75">{t.theoryChat.chatSubtitle}</p>
         </div>
 
         <div className="flex-1 overflow-y-auto p-4 space-y-3">
@@ -71,7 +74,7 @@ export default function TheoryChatPage() {
           {loading && (
             <div className="flex justify-start">
               <div className="chat-bubble-ai flex items-center gap-2 text-sm" style={{ color: 'var(--text-muted)' }}>
-                <span className="spinner"></span> חושב...
+                <span className="spinner"></span> {t.theoryChat.thinking}
               </div>
             </div>
           )}
@@ -83,11 +86,11 @@ export default function TheoryChatPage() {
             value={input}
             onChange={e => setInput(e.target.value)}
             className="input-field flex-1"
-            placeholder="שאל שאלה על תורת הבנייה..."
+            placeholder={t.theoryChat.placeholder}
             disabled={loading}
           />
           <button type="submit" disabled={loading || !input.trim()} className="btn-primary px-5">
-            שלח
+            {t.theoryChat.send}
           </button>
         </form>
       </div>

@@ -1,5 +1,7 @@
 import { createClient, createAdminClient } from '@/lib/supabase-server'
 import Link from 'next/link'
+import { cookies } from 'next/headers'
+import { getDictionary, isValidLang } from '@/lib/i18n'
 
 export default async function DashboardPage() {
   const supabase = await createClient()
@@ -23,33 +25,38 @@ export default async function DashboardPage() {
     ? Math.round(recentAnswers.reduce((s, a) => s + (a.score || 0), 0) / recentAnswers.length * 10) / 10
     : null
 
+  const cookieStore = await cookies()
+  const langCookie = cookieStore.get('lang')?.value
+  const lang = isValidLang(langCookie) ? langCookie : 'he'
+  const t = getDictionary(lang)
+
   return (
     <div>
       <div className="mb-6">
         <h1 className="text-2xl font-bold" style={{ color: 'var(--primary)' }}>
-          שלום, {profile?.full_name || 'סטודנט'} 👋
+          {t.dashboard.greeting.replace('{name}', profile?.full_name || (lang === 'ar' ? 'الطالب' : 'סטודנט'))}
         </h1>
-        <p style={{ color: 'var(--text-muted)' }}>ברוך הבא לפורטל הלימוד</p>
+        <p style={{ color: 'var(--text-muted)' }}>{t.dashboard.welcome}</p>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-5 mb-8">
         <CourseCard
           icon="📐"
-          title="תורת הבנייה"
-          description="חומרי לימוד, שאלות חופשיות והכנה למבחן"
+          title={t.dashboard.theoryCard.title}
+          description={t.dashboard.theoryCard.desc}
           links={[
-            { href: '/building-theory', label: 'חומרי לימוד' },
-            { href: '/building-theory/chat', label: 'שאלות חופשיות' },
-            { href: '/building-theory/exam', label: 'הכנה למבחן' },
+            { href: '/building-theory', label: t.dashboard.theoryCard.links.materials },
+            { href: '/building-theory/chat', label: t.dashboard.theoryCard.links.chat },
+            { href: '/building-theory/exam', label: t.dashboard.theoryCard.links.exam },
           ]}
           color="var(--primary)"
         />
         <CourseCard
           icon="📋"
-          title="תחיקת הבנייה"
-          description="שאלות על תקנות תכנון ובנייה עם מקורות עדכניים"
+          title={t.dashboard.legislationCard.title}
+          description={t.dashboard.legislationCard.desc}
           links={[
-            { href: '/building-legislation/chat', label: 'שאלות על תקנות' },
+            { href: '/building-legislation/chat', label: t.dashboard.legislationCard.link },
           ]}
           color="#2d6a4f"
         />
@@ -57,16 +64,16 @@ export default async function DashboardPage() {
 
       {profile?.role === 'admin' && (
         <div className="card p-5 mb-6" style={{ borderRight: '4px solid var(--secondary)' }}>
-          <h2 className="font-bold text-lg mb-3" style={{ color: 'var(--primary)' }}>ממשק מנהל</h2>
+          <h2 className="font-bold text-lg mb-3" style={{ color: 'var(--primary)' }}>{t.dashboard.adminSection.title}</h2>
           <div className="flex flex-wrap gap-3">
             <Link href="/admin">
-              <button className="btn-primary">לממשק הניהול</button>
+              <button className="btn-primary">{t.dashboard.adminSection.manage}</button>
             </Link>
             <Link href="/admin/upload">
-              <button className="btn-secondary">העלאת PDFs</button>
+              <button className="btn-secondary">{t.dashboard.adminSection.upload}</button>
             </Link>
             <Link href="/admin/statistics">
-              <button className="btn-secondary">סטטיסטיקות</button>
+              <button className="btn-secondary">{t.dashboard.adminSection.stats}</button>
             </Link>
           </div>
         </div>
@@ -74,19 +81,19 @@ export default async function DashboardPage() {
 
       {avgScore !== null && (
         <div className="card p-5">
-          <h2 className="font-bold mb-3" style={{ color: 'var(--primary)' }}>סטטיסטיקות אחרונות</h2>
+          <h2 className="font-bold mb-3" style={{ color: 'var(--primary)' }}>{t.dashboard.recentStats.title}</h2>
           <div className="flex gap-6">
             <div className="text-center">
               <div className="text-3xl font-bold" style={{ color: avgScore >= 7 ? 'var(--success)' : avgScore >= 4 ? 'var(--warning)' : 'var(--error)' }}>
                 {avgScore}
               </div>
-              <div className="text-xs mt-1" style={{ color: 'var(--text-muted)' }}>ממוצע ציון</div>
+              <div className="text-xs mt-1" style={{ color: 'var(--text-muted)' }}>{t.dashboard.recentStats.avgScore}</div>
             </div>
             <div className="text-center">
               <div className="text-3xl font-bold" style={{ color: 'var(--primary)' }}>
                 {recentAnswers?.length || 0}
               </div>
-              <div className="text-xs mt-1" style={{ color: 'var(--text-muted)' }}>שאלות אחרונות</div>
+              <div className="text-xs mt-1" style={{ color: 'var(--text-muted)' }}>{t.dashboard.recentStats.recentQuestions}</div>
             </div>
           </div>
         </div>

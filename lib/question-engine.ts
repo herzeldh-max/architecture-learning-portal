@@ -30,10 +30,16 @@ export type ExamQuestion =
   | ({ type: 'multiple' } & MultipleChoiceQuestion)
   | ({ type: 'open' } & OpenQuestion)
 
-export function buildTheorySystemPrompt(pdfTexts: string[]): string {
+export type Language = 'he' | 'ar'
+
+export function buildTheorySystemPrompt(pdfTexts: string[], language: Language = 'he'): string {
   const context = pdfTexts.length > 0
     ? `להלן תוכן המצגות מהקורס:\n\n${pdfTexts.join('\n\n---\n\n')}`
     : 'אין עדיין חומרי לימוד מועלים. ענה על פי ידע כללי בתורת הבנייה.'
+
+  const languageInstruction = language === 'ar'
+    ? '\n\nחשוב מאוד: חומרי המקור (המצגות) כתובים בעברית, אך עליך לענות לסטודנט בשפה הערבית הספרותית (فصحى) בלבד - השאלה, ההסבר והדוגמאות. תרגם את המושגים המקצועיים מהחומר העברי לערבית בצורה מדויקת.'
+    : ''
 
   return `אתה עוזר לימוד מקצועי לקורס תורת הבנייה באדריכלות.
 ענה תמיד בעברית, בצורה ברורה ומקצועית.
@@ -43,10 +49,14 @@ ${context}
 1. הסתמך קודם כל על החומרים מהמצגות
 2. אם הנושא לא מופיע במצגות, ענה על פי ידע מקצועי אמין
 3. ציין מהיכן לקחת את המידע (שם המצגה אם רלוונטי)
-4. השתמש בדוגמאות מעשיות`
+4. השתמש בדוגמאות מעשיות${languageInstruction}`
 }
 
-export function buildLegislationSystemPrompt(): string {
+export function buildLegislationSystemPrompt(language: Language = 'he'): string {
+  const languageInstruction = language === 'ar'
+    ? '\n\nחשוב מאוד: עליך לענות לסטודנט בשפה הערבית הספרותית (فصحى) בלבד - כולל הכותרות "תשובה" ו"מקור" שיש לתרגם ל"الإجابة" ו"المصدر". המקורות עצמם (שמות חוקים, אתרים) יכולים להישאר כפי שהם.'
+    : ''
+
   return `אתה עוזר מקצועי לקורס תחיקת הבנייה באדריכלות.
 ענה תמיד בעברית, בצורה מדויקת ומפורטת.
 
@@ -65,5 +75,5 @@ export function buildLegislationSystemPrompt(): string {
 - אתר: [שם האתר + קישור]
 - חוק/תקנה: [שם מדויק]
 - סעיף: [מספר סעיף]
-- עדכון אחרון: [תאריך אם ידוע]`
+- עדכון אחרון: [תאריך אם ידוע]${languageInstruction}`
 }

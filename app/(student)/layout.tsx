@@ -1,6 +1,8 @@
 import { redirect } from 'next/navigation'
+import { cookies } from 'next/headers'
 import { createClient, createAdminClient } from '@/lib/supabase-server'
 import Navbar from '@/components/Navbar'
+import { getDictionary, isValidLang } from '@/lib/i18n'
 
 export default async function StudentLayout({ children }: { children: React.ReactNode }) {
   const supabase = await createClient()
@@ -14,6 +16,11 @@ export default async function StudentLayout({ children }: { children: React.Reac
     .eq('id', user.id)
     .single()
 
+  const cookieStore = await cookies()
+  const langCookie = cookieStore.get('lang')?.value
+  const lang = isValidLang(langCookie) ? langCookie : 'he'
+  const t = getDictionary(lang)
+
   return (
     <div className="min-h-screen flex flex-col">
       <Navbar userName={profile?.full_name || user.email || ''} role={profile?.role || 'student'} />
@@ -21,7 +28,7 @@ export default async function StudentLayout({ children }: { children: React.Reac
         {children}
       </main>
       <footer className="py-3 text-center text-xs" style={{ color: 'var(--text-muted)', borderTop: '1px solid var(--border)' }}>
-        פורטל לימוד - אדריכלות ועיצוב פנים | &copy; כל הזכויות שמורות לבן שבת הרצל | המכללה הטכנולוגית באר שבע
+        {t.footer}
       </footer>
     </div>
   )

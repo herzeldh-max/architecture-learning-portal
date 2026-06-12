@@ -9,7 +9,8 @@ export async function POST(req: NextRequest) {
     const { data: { user } } = await supabase.auth.getUser()
     if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
 
-    const { semester, questionType, sessionId, isFirst } = await req.json()
+    const { semester, questionType, sessionId, isFirst, language } = await req.json()
+    const lang: 'he' | 'ar' = language === 'ar' ? 'ar' : 'he'
 
     let currentSessionId = sessionId
     if (isFirst || !currentSessionId) {
@@ -34,7 +35,10 @@ export async function POST(req: NextRequest) {
     ) || []
 
     if (filteredPdfs.length === 0) {
-      return NextResponse.json({ error: 'no-materials', message: 'אין עדיין חומרי לימוד זמינים לסמסטר שנבחר. פנה למרצה להעלאת חומרים.' }, { status: 404 })
+      const message = lang === 'ar'
+        ? 'لا توجد مواد تعليمية متاحة للفصل الدراسي المحدد حاليًا. يرجى التواصل مع المحاضر لرفع المواد.'
+        : 'אין עדיין חומרי לימוד זמינים לסמסטר שנבחר. פנה למרצה להעלאת חומרים.'
+      return NextResponse.json({ error: 'no-materials', message }, { status: 404 })
     }
 
     const pdfContext = filteredPdfs.map(p => `${p.title}:\n${p.extracted_text?.slice(0, 3000)}`).join('\n\n')
@@ -62,6 +66,10 @@ export async function POST(req: NextRequest) {
       ? `\nשאלות שכבר נשאלו לסטודנט זה (אל תחזור עליהן ואל תיצור וריאציה קרובה אליהן):\n${recentQuestions.map(q => `- ${q}`).join('\n')}\n`
       : ''
 
+    const languageInstruction = lang === 'ar'
+      ? '\n\nחשוב מאוד: חומרי הקורס לעיל כתובים בעברית, אך עליך ליצור את השאלה, התשובות וההסבר בשפה הערבית הספרותית (فصحى) בלבד. תרגם את המושגים המקצועיים מהחומר העברי לערבית בצורה מדויקת ומקצועית.'
+      : ''
+
     const buildSystemPrompt = (extra?: string) => `אתה מרצה מומחה לתורת הבנייה. צור שאלת ${actualType === 'multiple' ? 'אמריקאית (multiple choice)' : 'פתוחה'} מעניינת ומאתגרת על תורת הבנייה.
 
 חומרי הקורס (זהו המקור היחיד המותר לשאלות):
@@ -73,7 +81,7 @@ ${pdfContext}
 3. ${actualType === 'multiple' ? '4 תשובות אפשריות, רק אחת נכונה' : 'שאלה פתוחה שדורשת הסבר מעמיק'}
 4. כלול הסבר/פתרון מפורט, המתבסס על החומרים שסופקו
 ${avoidList}
-הנחיה: כבר שאלת ${usedCount} שאלות. צור שאלה חדשה לגמרי, על נושא, היבט או זווית שונים מהשאלות שכבר נשאלו, אך עדיין מתוך חומרי הקורס בלבד. הקורס מכיל מגוון רחב של נושאים, פרקים, הגדרות, חישובים ודוגמאות - חפש זוויות חדשות (הגדרה, יישום, השוואה, חישוב, יתרון/חיסרון וכו') כדי למנוע חזרה.${extra ? `\n${extra}` : ''}`
+הנחיה: כבר שאלת ${usedCount} שאלות. צור שאלה חדשה לגמרי, על נושא, היבט או זווית שונים מהשאלות שכבר נשאלו, אך עדיין מתוך חומרי הקורס בלבד. הקורס מכיל מגוון רחב של נושאים, פרקים, הגדרות, חישובים ודוגמאות - חפש זוויות חדשות (הגדרה, יישום, השוואה, חישוב, יתרון/חיסרון וכו') כדי למנוע חזרה.${languageInstruction}${extra ? `\n${extra}` : ''}`
 
     let prompt
     if (actualType === 'multiple') {

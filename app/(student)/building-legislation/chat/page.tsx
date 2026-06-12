@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useRef, useEffect } from 'react'
+import { useLanguage } from '@/components/LanguageProvider'
 
 interface Message {
   role: 'user' | 'assistant'
@@ -8,8 +9,9 @@ interface Message {
 }
 
 export default function LegislationChatPage() {
+  const { t, lang } = useLanguage()
   const [messages, setMessages] = useState<Message[]>([
-    { role: 'assistant', content: 'שלום! אני עוזר הלימוד לקורס תחיקת הבנייה.\n\nאני יכול לענות על שאלות בנושא תקנות תכנון ובנייה עדכניות, חוקים, תקנות ונהלים. התשובות שלי מבוססות על מקורות רשמיים (אתר נבו, כנסת, משרד הפנים).\n\nשאל אותי כל שאלה!' }
+    { role: 'assistant', content: t.legislationChat.initialMessage }
   ])
   const [input, setInput] = useState('')
   const [loading, setLoading] = useState(false)
@@ -30,36 +32,31 @@ export default function LegislationChatPage() {
       const res = await fetch('/api/legislation/chat', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ message: userMsg }),
+        body: JSON.stringify({ message: userMsg, language: lang }),
       })
       const data = await res.json()
-      setMessages(prev => [...prev, { role: 'assistant', content: data.reply || 'אירעה שגיאה.' }])
+      setMessages(prev => [...prev, { role: 'assistant', content: data.reply || t.theoryChat.errorRetry }])
     } catch {
-      setMessages(prev => [...prev, { role: 'assistant', content: 'אירעה שגיאה בחיבור לשרת.' }])
+      setMessages(prev => [...prev, { role: 'assistant', content: t.legislationChat.errorConnection }])
     } finally {
       setLoading(false)
     }
   }
 
-  const suggestions = [
-    'מהו חוק התכנון והבנייה?',
-    'מהן דרישות הנגישות לבניין ציבורי?',
-    'מה הם תקנות הבטיחות באש לבניינים?',
-    'מהם כללי הקו הבונה?',
-  ]
+  const suggestions = t.legislationChat.suggestions
 
   return (
     <div>
       <div className="flex items-center gap-3 mb-4">
-        <span className="text-sm font-medium">תחיקת הבנייה</span>
+        <span className="text-sm font-medium">{t.legislationChat.breadcrumb}</span>
         <span style={{ color: 'var(--text-muted)' }}>›</span>
-        <span className="text-sm" style={{ color: 'var(--text-muted)' }}>שאלות על תקנות</span>
+        <span className="text-sm" style={{ color: 'var(--text-muted)' }}>{t.legislationChat.title}</span>
       </div>
 
       <div className="card overflow-hidden" style={{ height: 'calc(100vh - 210px)', display: 'flex', flexDirection: 'column' }}>
         <div className="p-4 border-b" style={{ backgroundColor: '#2d6a4f', color: 'white' }}>
-          <h1 className="font-bold">📋 תחיקת הבנייה - שאלות על תקנות</h1>
-          <p className="text-xs opacity-75">מבוסס על נבו, כנסת, משרד הפנים ומשרד הבינוי | מקורות מצוינים בכל תשובה</p>
+          <h1 className="font-bold">{t.legislationChat.chatTitle}</h1>
+          <p className="text-xs opacity-75">{t.legislationChat.chatSubtitle}</p>
         </div>
 
         <div className="flex-1 overflow-y-auto p-4 space-y-3">
@@ -74,7 +71,7 @@ export default function LegislationChatPage() {
           {loading && (
             <div className="flex justify-start">
               <div className="chat-bubble-ai flex items-center gap-2 text-sm" style={{ color: 'var(--text-muted)' }}>
-                <span className="spinner"></span> מחפש במקורות רשמיים...
+                <span className="spinner"></span> {t.legislationChat.searching}
               </div>
             </div>
           )}
@@ -83,7 +80,7 @@ export default function LegislationChatPage() {
 
         {messages.length === 1 && (
           <div className="px-4 pb-3">
-            <p className="text-xs mb-2" style={{ color: 'var(--text-muted)' }}>שאלות מוצעות:</p>
+            <p className="text-xs mb-2" style={{ color: 'var(--text-muted)' }}>{t.legislationChat.suggestionsLabel}</p>
             <div className="flex flex-wrap gap-2">
               {suggestions.map((s, i) => (
                 <button key={i} onClick={() => setInput(s)}
@@ -100,12 +97,12 @@ export default function LegislationChatPage() {
             value={input}
             onChange={e => setInput(e.target.value)}
             className="input-field flex-1"
-            placeholder="שאל על תקנות תכנון ובנייה..."
+            placeholder={t.legislationChat.placeholder}
             disabled={loading}
           />
           <button type="submit" disabled={loading || !input.trim()}
             className="btn-primary px-5" style={{ backgroundColor: '#2d6a4f' }}>
-            שלח
+            {t.legislationChat.send}
           </button>
         </form>
       </div>

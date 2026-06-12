@@ -1,6 +1,14 @@
 import Link from 'next/link'
+import { cookies } from 'next/headers'
+import { getDictionary, isValidLang } from '@/lib/i18n'
+import LanguageSwitcher from '@/components/LanguageSwitcher'
 
-export default function HomePage() {
+export default async function HomePage() {
+  const cookieStore = await cookies()
+  const langCookie = cookieStore.get('lang')?.value
+  const lang = isValidLang(langCookie) ? langCookie : 'he'
+  const t = getDictionary(lang)
+
   return (
     <div className="min-h-screen flex flex-col">
       <main className="flex-1">
@@ -19,10 +27,11 @@ export default function HomePage() {
                   className="object-contain rounded"
                 />
               </a>
-              <div className="flex gap-3">
+              <div className="flex items-center gap-3">
+                <LanguageSwitcher variant="dark" />
                 <Link href="/login">
                   <button className="px-4 py-2 rounded-lg font-semibold border-2 border-white text-white hover:bg-white hover:text-blue-900 transition-colors">
-                    כניסה
+                    {t.common.login}
                   </button>
                 </Link>
                 <Link href="/register">
@@ -30,7 +39,7 @@ export default function HomePage() {
                     className="px-4 py-2 rounded-lg font-semibold"
                     style={{ backgroundColor: 'var(--secondary)', color: '#1a202c' }}
                   >
-                    הרשמה
+                    {t.common.register}
                   </button>
                 </Link>
               </div>
@@ -38,24 +47,23 @@ export default function HomePage() {
           </header>
 
           <div className="hero-content-top text-white text-center px-6 pt-8 md:pt-12">
-            <h1 className="text-xl md:text-2xl font-bold leading-tight">פורטל לימוד - אדריכלות ועיצוב פנים</h1>
-            <p className="text-sm md:text-base opacity-80">המכללה הטכנולוגית בבאר שבע</p>
+            <h1 className="text-xl md:text-2xl font-bold leading-tight">{lang === 'ar' ? 'بوابة التعلم - هندسة العمارة وتصميم الديكور الداخلي' : 'פורטל לימוד - אדריכלות ועיצוב פנים'}</h1>
+            <p className="text-sm md:text-base opacity-80">{t.home.collegeSubtitle}</p>
           </div>
 
           <div className="hero-content max-w-3xl mx-auto px-6 pb-20 md:pb-28 text-white text-center flex flex-col items-center">
             <h2 className="text-4xl md:text-6xl font-extrabold mb-5 leading-tight">
-              ברוכים הבאים לפורטל הלימוד
+              {t.home.heroTitle}
             </h2>
             <p className="text-lg md:text-xl mb-10 max-w-2xl" style={{ opacity: 0.9 }}>
-              מערכת AI מתקדמת לסטודנטים לאדריכלות ועיצוב פנים.
-              שאלות, חומרים ותרגול לקראת הבחינות.
+              {t.home.heroDesc}
             </p>
             <Link href="/register">
               <button
                 className="text-lg px-8 py-3 rounded-xl font-bold shadow-lg hover:shadow-xl transition-all"
                 style={{ backgroundColor: 'var(--secondary)', color: '#1a202c' }}
               >
-                התחל עכשיו
+                {t.home.startNow}
               </button>
             </Link>
           </div>
@@ -64,27 +72,27 @@ export default function HomePage() {
         <section className="py-20 px-6">
           <div className="max-w-5xl mx-auto">
             <h3 className="text-3xl font-extrabold text-center mb-3" style={{ color: 'var(--primary)' }}>
-              מה תמצאו בפורטל?
+              {t.home.featuresTitle}
             </h3>
             <p className="text-center mb-14" style={{ color: 'var(--text-muted)' }}>
-              כל מה שצריך כדי להתכונן בביטחון לקורסי תורת הבנייה ותחיקת הבנייה
+              {t.home.featuresSubtitle}
             </p>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-              <FeatureCard icon="📐" title="תורת הבנייה" subtitle="קורס לשנה א'"
-                points={['חומרי לימוד מהמצגות לפי סמסטר','שאלות חופשיות על החומר עם AI','הכנה למבחן עם שאלות מותאמות','ניקוד מיידי ומשוב מפורט']} />
-              <FeatureCard icon="📋" title="תחיקת הבנייה" subtitle="תקנות תכנון ובנייה"
-                points={['שאלות על תקנות עדכניות','מידע ממקורות רשמיים (נבו, כנסת)','ציון מקור מדויק לכל תשובה','חומר עדכני ומאומת']} />
-              <FeatureCard icon="🎯" title="הכנה למבחן" subtitle="שאלות ללא הגבלה"
-                points={["שאלות אמריקאיות ופתוחות","תשובות אקראיות - לא תמיד א'",'מניעת חזרה על שאלות','מעקב ציונים אישי']} />
-              <FeatureCard icon="📊" title="מעקב התקדמות" subtitle="ממשק אישי"
-                points={['היסטוריית שאלות ותשובות','ממוצע ציונים לפי נושא','זיהוי נושאים שדורשים חיזוק','חשבון אישי מאובטח']} />
+              <FeatureCard icon="📐" title={t.home.features.theory.title} subtitle={t.home.features.theory.subtitle}
+                points={t.home.features.theory.points} />
+              <FeatureCard icon="📋" title={t.home.features.legislation.title} subtitle={t.home.features.legislation.subtitle}
+                points={t.home.features.legislation.points} />
+              <FeatureCard icon="🎯" title={t.home.features.exam.title} subtitle={t.home.features.exam.subtitle}
+                points={t.home.features.exam.points} />
+              <FeatureCard icon="📊" title={t.home.features.progress.title} subtitle={t.home.features.progress.subtitle}
+                points={t.home.features.progress.points} />
             </div>
           </div>
         </section>
       </main>
 
       <footer className="py-4 text-center text-sm" style={{ color: 'var(--text-muted)', borderTop: '1px solid var(--border)' }}>
-        פורטל לימוד - אדריכלות ועיצוב פנים | &copy; כל הזכויות שמורות לבן שבת הרצל | המכללה הטכנולוגית באר שבע
+        {t.footer}
       </footer>
     </div>
   )
