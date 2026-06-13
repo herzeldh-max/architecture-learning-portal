@@ -169,6 +169,10 @@ export interface Dictionary {
     send: string
     errorConnection: string
   }
+  legislationResources: {
+    title: string
+    items: { name: string; url: string }[]
+  }
   dictionary: {
     title: string
     subtitle: string
@@ -407,6 +411,14 @@ const he: Dictionary = {
     send: 'שלח',
     errorConnection: 'אירעה שגיאה בחיבור לשרת.',
   },
+  legislationResources: {
+    title: 'קישורים למקורות רשמיים',
+    items: [
+      { name: 'פיקוד העורף - הנחיות והוראות בנייה למרחב מוגן', url: 'https://www.oref.org.il' },
+      { name: 'מכון התקנים הישראלי', url: 'https://www.sii.org.il' },
+      { name: 'משרד הפנים - מינהל התכנון (חוזרים ותקנות תכנון ובנייה)', url: 'https://www.gov.il/he/departments/the_planning_administration' },
+    ],
+  },
   dictionary: {
     title: 'מילון אדריכלי',
     subtitle: 'מונחי יסוד בתורת הבנייה ובאדריכלות, בעברית ובערבית',
@@ -644,6 +656,14 @@ const ar: Dictionary = {
     placeholder: 'اسأل عن لوائح التخطيط والبناء...',
     send: 'إرسال',
     errorConnection: 'حدث خطأ في الاتصال بالخادم.',
+  },
+  legislationResources: {
+    title: 'روابط لمصادر رسمية',
+    items: [
+      { name: 'قيادة الجبهة الداخلية - تعليمات وتوجيهات بناء الغرف المحمية', url: 'https://www.oref.org.il' },
+      { name: 'معهد المواصفات الإسرائيلي', url: 'https://www.sii.org.il' },
+      { name: 'وزارة الداخلية - إدارة التخطيط (تعليمات ولوائح التخطيط والبناء)', url: 'https://www.gov.il/he/departments/the_planning_administration' },
+    ],
   },
   dictionary: {
     title: 'القاموس المعماري',

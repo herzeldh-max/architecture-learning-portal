@@ -106,6 +106,24 @@ export default function LegislationChatPage() {
           </button>
         </form>
       </div>
+
+      <div className="card p-4 mt-4">
+        <h2 className="font-bold mb-3 text-sm">{t.legislationResources.title}</h2>
+        <div className="flex flex-col gap-2">
+          {t.legislationResources.items.map((item, i) => (
+            <a
+              key={i}
+              href={item.url}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-sm px-3 py-2 rounded-lg border hover:underline"
+              style={{ borderColor: 'var(--border)', color: 'var(--primary)' }}
+            >
+              {item.name}
+            </a>
+          ))}
+        </div>
+      </div>
     </div>
   )
 }
