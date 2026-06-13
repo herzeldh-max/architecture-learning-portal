@@ -4,15 +4,22 @@ import { useState, useMemo } from 'react'
 import { useLanguage } from '@/components/LanguageProvider'
 import { glossaryTerms } from '@/lib/glossary'
 
+const HEBREW_ALPHABET = ['א', 'ב', 'ג', 'ד', 'ה', 'ו', 'ז', 'ח', 'ט', 'י', 'כ', 'ל', 'מ', 'נ', 'ס', 'ע', 'פ', 'צ', 'ק', 'ר', 'ש', 'ת']
+
 export default function DictionaryPage() {
   const { t } = useLanguage()
   const [search, setSearch] = useState('')
-  const [category, setCategory] = useState<string>('all')
+  const [letter, setLetter] = useState<string>('all')
+
+  const availableLetters = useMemo(() => {
+    const present = new Set(glossaryTerms.map(term => term.he[0]))
+    return HEBREW_ALPHABET.filter(l => present.has(l))
+  }, [])
 
   const filtered = useMemo(() => {
     const q = search.trim().toLowerCase()
     return glossaryTerms.filter(term => {
-      if (category !== 'all' && term.category !== category) return false
+      if (letter !== 'all' && term.he[0] !== letter) return false
       if (!q) return true
       return (
         term.he.toLowerCase().includes(q) ||
@@ -21,9 +28,7 @@ export default function DictionaryPage() {
         term.definitionAr.toLowerCase().includes(q)
       )
     })
-  }, [search, category])
-
-  const categories = Object.keys(t.dictionary.categories)
+  }, [search, letter])
 
   return (
     <div>
@@ -32,26 +37,43 @@ export default function DictionaryPage() {
         <p style={{ color: 'var(--text-muted)' }}>{t.dictionary.subtitle}</p>
       </div>
 
-      <div className="flex flex-col md:flex-row gap-3 mb-6">
+      <div className="mb-4">
         <input
           type="text"
           value={search}
           onChange={e => setSearch(e.target.value)}
           placeholder={t.dictionary.searchPlaceholder}
-          className="flex-1 border rounded-lg px-4 py-2 focus:outline-none focus:ring-2"
+          className="w-full border rounded-lg px-4 py-2 focus:outline-none focus:ring-2"
           style={{ borderColor: 'var(--border)' }}
         />
-        <select
-          value={category}
-          onChange={e => setCategory(e.target.value)}
-          className="border rounded-lg px-4 py-2"
-          style={{ borderColor: 'var(--border)' }}
+      </div>
+
+      <div className="flex flex-wrap gap-2 mb-6">
+        <button
+          onClick={() => setLetter('all')}
+          className="px-3 py-1 rounded-lg border text-sm font-bold"
+          style={{
+            borderColor: 'var(--border)',
+            backgroundColor: letter === 'all' ? 'var(--primary)' : 'transparent',
+            color: letter === 'all' ? '#fff' : 'inherit',
+          }}
         >
-          <option value="all">{t.dictionary.categoryAll}</option>
-          {categories.map(cat => (
-            <option key={cat} value={cat}>{t.dictionary.categories[cat]}</option>
-          ))}
-        </select>
+          {t.dictionary.allLetters}
+        </button>
+        {availableLetters.map(l => (
+          <button
+            key={l}
+            onClick={() => setLetter(l)}
+            className="w-9 h-9 rounded-lg border text-sm font-bold"
+            style={{
+              borderColor: 'var(--border)',
+              backgroundColor: letter === l ? 'var(--primary)' : 'transparent',
+              color: letter === l ? '#fff' : 'inherit',
+            }}
+          >
+            {l}
+          </button>
+        ))}
       </div>
 
       <div className="mb-4 text-sm" style={{ color: 'var(--text-muted)' }}>
@@ -68,13 +90,14 @@ export default function DictionaryPage() {
             <div key={i} className="card p-4">
               <div className="flex items-center justify-between mb-2">
                 <span className="font-bold text-lg" style={{ color: 'var(--primary)' }}>{term.he}</span>
-                <span className="font-bold text-lg" dir="rtl" style={{ color: 'var(--primary)' }}>{term.ar}</span>
-              </div>
-              <div className="text-xs uppercase tracking-wide mb-2" style={{ color: 'var(--text-muted)' }}>
-                {t.dictionary.categories[term.category]}
+                {term.ar && (
+                  <span className="font-bold text-lg" dir="rtl" style={{ color: 'var(--primary)' }}>{term.ar}</span>
+                )}
               </div>
               <p className="text-sm mb-1">{term.definitionHe}</p>
-              <p className="text-sm" dir="rtl">{term.definitionAr}</p>
+              {term.definitionAr && (
+                <p className="text-sm" dir="rtl">{term.definitionAr}</p>
+              )}
             </div>
           ))}
         </div>

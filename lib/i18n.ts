@@ -146,8 +146,7 @@ export interface Dictionary {
     title: string
     subtitle: string
     searchPlaceholder: string
-    categoryAll: string
-    categories: Record<string, string>
+    allLetters: string
     noResults: string
     termsCount: string
   }
@@ -358,14 +357,7 @@ const he: Dictionary = {
     title: 'מילון אדריכלי',
     subtitle: 'מונחי יסוד בתורת הבנייה ובאדריכלות, בעברית ובערבית',
     searchPlaceholder: 'חיפוש מונח...',
-    categoryAll: 'הכל',
-    categories: {
-      structure: 'מבנה ושלד',
-      materials: 'חומרי בנייה',
-      openings: 'פתחים וגמרים',
-      planning: 'תכנון ותקנות',
-      systems: 'מערכות ובטיחות',
-    },
+    allLetters: 'הכל',
     noResults: 'לא נמצאו מונחים מתאימים',
     termsCount: '{n} מונחים',
   },
@@ -576,14 +568,7 @@ const ar: Dictionary = {
     title: 'القاموس المعماري',
     subtitle: 'مصطلحات أساسية في نظرية البناء والهندسة المعمارية، بالعبرية والعربية',
     searchPlaceholder: 'البحث عن مصطلح...',
-    categoryAll: 'الكل',
-    categories: {
-      structure: 'الهيكل والبنية',
-      materials: 'مواد البناء',
-      openings: 'الفتحات والتشطيبات',
-      planning: 'التخطيط واللوائح',
-      systems: 'الأنظمة والسلامة',
-    },
+    allLetters: 'الكل',
     noResults: 'لم يتم العثور على مصطلحات مطابقة',
     termsCount: '{n} مصطلحًا',
   },
