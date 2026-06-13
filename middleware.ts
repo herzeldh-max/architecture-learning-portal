@@ -25,7 +25,7 @@ export async function middleware(request: NextRequest) {
 
   const { pathname } = request.nextUrl
 
-  const publicPaths = ['/', '/login', '/register']
+  const publicPaths = ['/', '/login', '/register', '/forgot-password', '/reset-password']
   const isPublic = publicPaths.includes(pathname) || pathname.startsWith('/api/auth')
 
   if (!user && !isPublic) {

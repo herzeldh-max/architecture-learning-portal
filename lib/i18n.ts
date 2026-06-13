@@ -41,6 +41,7 @@ export interface Dictionary {
       error: string
       noAccount: string
       registerLink: string
+      forgotPasswordLink: string
     }
     register: {
       title: string
@@ -60,6 +61,32 @@ export interface Dictionary {
       successNeedsLogin: string
       hasAccount: string
       loginLink: string
+    }
+    forgotPassword: {
+      title: string
+      subtitle: string
+      email: string
+      submit: string
+      submitting: string
+      success: string
+      error: string
+      backToLogin: string
+    }
+    resetPassword: {
+      title: string
+      subtitle: string
+      password: string
+      passwordPlaceholder: string
+      confirmPassword: string
+      confirmPasswordPlaceholder: string
+      submit: string
+      submitting: string
+      errorMismatch: string
+      errorShort: string
+      errorGeneric: string
+      success: string
+      backToLogin: string
+      invalidLink: string
     }
   }
   dashboard: {
@@ -230,6 +257,7 @@ const he: Dictionary = {
       error: 'אימייל או סיסמה שגויים',
       noAccount: 'אין לך חשבון?',
       registerLink: 'הרשמה',
+      forgotPasswordLink: 'שכחת סיסמה?',
     },
     register: {
       title: 'הרשמה לפורטל',
@@ -249,6 +277,32 @@ const he: Dictionary = {
       successNeedsLogin: 'נרשמת בהצלחה! אנא התחבר.',
       hasAccount: 'כבר רשום?',
       loginLink: 'כניסה',
+    },
+    forgotPassword: {
+      title: 'שחזור סיסמה',
+      subtitle: 'הזן את כתובת האימייל שלך ונשלח לך קישור לאיפוס הסיסמה',
+      email: 'אימייל',
+      submit: 'שלח קישור לאיפוס',
+      submitting: 'שולח...',
+      success: 'נשלח אליך אימייל עם קישור לאיפוס הסיסמה. בדוק את תיבת הדואר שלך.',
+      error: 'אירעה שגיאה בשליחת הקישור. נסה שוב.',
+      backToLogin: 'חזרה לדף הכניסה',
+    },
+    resetPassword: {
+      title: 'איפוס סיסמה',
+      subtitle: 'הזן סיסמה חדשה לחשבונך',
+      password: 'סיסמה חדשה',
+      passwordPlaceholder: 'לפחות 6 תווים',
+      confirmPassword: 'אימות סיסמה',
+      confirmPasswordPlaceholder: 'הכנס שוב את הסיסמה',
+      submit: 'עדכן סיסמה',
+      submitting: 'מעדכן...',
+      errorMismatch: 'הסיסמאות אינן תואמות',
+      errorShort: 'הסיסמה חייבת להכיל לפחות 6 תווים',
+      errorGeneric: 'אירעה שגיאה בעדכון הסיסמה. נסה שוב.',
+      success: 'הסיסמה עודכנה בהצלחה! מעביר אותך לדף הכניסה...',
+      backToLogin: 'חזרה לדף הכניסה',
+      invalidLink: 'הקישור פג תוקף או אינו תקין. בקש קישור חדש לאיפוס סיסמה.',
     },
   },
   dashboard: {
@@ -441,6 +495,7 @@ const ar: Dictionary = {
       error: 'البريد الإلكتروني أو كلمة المرور غير صحيحة',
       noAccount: 'ليس لديك حساب؟',
       registerLink: 'إنشاء حساب',
+      forgotPasswordLink: 'هل نسيت كلمة المرور؟',
     },
     register: {
       title: 'إنشاء حساب في البوابة',
@@ -460,6 +515,32 @@ const ar: Dictionary = {
       successNeedsLogin: 'تم التسجيل بنجاح! يرجى تسجيل الدخول.',
       hasAccount: 'هل لديك حساب بالفعل؟',
       loginLink: 'تسجيل الدخول',
+    },
+    forgotPassword: {
+      title: 'استعادة كلمة المرور',
+      subtitle: 'أدخل بريدك الإلكتروني وسنرسل لك رابطًا لإعادة تعيين كلمة المرور',
+      email: 'البريد الإلكتروني',
+      submit: 'إرسال رابط إعادة التعيين',
+      submitting: 'جاري الإرسال...',
+      success: 'تم إرسال بريد إلكتروني يحتوي على رابط لإعادة تعيين كلمة المرور. تحقق من بريدك الوارد.',
+      error: 'حدث خطأ أثناء إرسال الرابط. حاول مرة أخرى.',
+      backToLogin: 'العودة إلى صفحة تسجيل الدخول',
+    },
+    resetPassword: {
+      title: 'إعادة تعيين كلمة المرور',
+      subtitle: 'أدخل كلمة مرور جديدة لحسابك',
+      password: 'كلمة المرور الجديدة',
+      passwordPlaceholder: '6 أحرف على الأقل',
+      confirmPassword: 'تأكيد كلمة المرور',
+      confirmPasswordPlaceholder: 'أدخل كلمة المرور مرة أخرى',
+      submit: 'تحديث كلمة المرور',
+      submitting: 'جاري التحديث...',
+      errorMismatch: 'كلمتا المرور غير متطابقتين',
+      errorShort: 'يجب أن تتكون كلمة المرور من 6 أحرف على الأقل',
+      errorGeneric: 'حدث خطأ أثناء تحديث كلمة المرور. حاول مرة أخرى.',
+      success: 'تم تحديث كلمة المرور بنجاح! سيتم تحويلك إلى صفحة تسجيل الدخول...',
+      backToLogin: 'العودة إلى صفحة تسجيل الدخول',
+      invalidLink: 'الرابط منتهي الصلاحية أو غير صالح. يرجى طلب رابط جديد لإعادة تعيين كلمة المرور.',
     },
   },
   dashboard: {

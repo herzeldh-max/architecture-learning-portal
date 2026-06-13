@@ -64,7 +64,12 @@ export default function LoginPage() {
             />
           </div>
           <div>
-            <label className="block text-sm font-medium mb-1">{t.auth.login.password}</label>
+            <div className="flex items-center justify-between mb-1">
+              <label className="block text-sm font-medium">{t.auth.login.password}</label>
+              <Link href="/forgot-password" className="text-sm font-semibold" style={{ color: 'var(--primary)' }}>
+                {t.auth.login.forgotPasswordLink}
+              </Link>
+            </div>
             <input
               type="password"
               value={password}
