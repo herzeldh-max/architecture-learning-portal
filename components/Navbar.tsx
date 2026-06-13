@@ -28,14 +28,14 @@ export default function Navbar({ userName, role }: NavbarProps) {
   const studentLinks = [
     { href: '/dashboard', label: t.nav.home },
     { href: '/building-theory', label: t.nav.buildingTheory },
-    { href: '/building-legislation/chat', label: t.nav.buildingLegislation },
+    { href: '/building-legislation', label: t.nav.buildingLegislation },
     { href: '/dictionary', label: t.nav.dictionary },
   ]
 
   const adminLinks = [
     { href: '/dashboard', label: t.nav.home },
     { href: '/building-theory', label: t.nav.buildingTheory },
-    { href: '/building-legislation/chat', label: t.nav.buildingLegislation },
+    { href: '/building-legislation', label: t.nav.buildingLegislation },
     { href: '/dictionary', label: t.nav.dictionary },
     { href: '/admin', label: t.nav.admin },
   ]
@@ -46,24 +46,19 @@ export default function Navbar({ userName, role }: NavbarProps) {
     <nav style={{ backgroundColor: 'var(--primary)' }} className="text-white shadow-md sticky top-0 z-50">
       <div className="max-w-6xl mx-auto px-4">
         <div className="flex items-center justify-between h-14">
-          <Link href="/dashboard" className="font-bold text-base truncate max-w-xs">
-            {t.nav.brand}
-          </Link>
-
-          <div className="hidden md:flex items-center gap-1">
-            {links.map(l => (
-              <Link
-                key={l.href}
-                href={l.href}
-                className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${
-                  pathname === l.href || pathname.startsWith(l.href + '/')
-                    ? 'bg-white/20'
-                    : 'hover:bg-white/10'
-                }`}
-              >
-                {l.label}
-              </Link>
-            ))}
+          <div className="flex items-center gap-3">
+            <Link href="/dashboard" className="font-bold text-base truncate max-w-xs">
+              {t.nav.brand}
+            </Link>
+            <a href="https://www.tcb.ac.il" target="_blank" rel="noopener noreferrer">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src="/college-logo.png"
+                alt="המכללה הטכנולוגית באר שבע"
+                style={{ height: '40px', width: 'auto' }}
+                className="object-contain rounded"
+              />
+            </a>
           </div>
 
           <div className="hidden md:flex items-center gap-3">
@@ -77,16 +72,6 @@ export default function Navbar({ userName, role }: NavbarProps) {
             <button onClick={handleLogout} className="text-sm px-3 py-1.5 rounded-lg border border-white/30 hover:bg-white/10 transition-colors">
               {t.common.logout}
             </button>
-            <div className="h-10 w-px bg-white/20 mx-1" />
-            <a href="https://www.tcb.ac.il" target="_blank" rel="noopener noreferrer">
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img
-                src="/college-logo.png"
-                alt="המכללה הטכנולוגית באר שבע"
-                style={{ height: '48px', width: 'auto' }}
-                className="object-contain rounded"
-              />
-            </a>
           </div>
 
           <button onClick={() => setMenuOpen(!menuOpen)} className="md:hidden p-2 rounded hover:bg-white/10">
@@ -100,7 +85,9 @@ export default function Navbar({ userName, role }: NavbarProps) {
           <div className="md:hidden pb-3 border-t border-white/20 mt-1 pt-2">
             {links.map(l => (
               <Link key={l.href} href={l.href} onClick={() => setMenuOpen(false)}
-                className="block px-3 py-2 rounded-lg text-sm hover:bg-white/10 transition-colors">
+                className={`block px-3 py-2 rounded-lg text-sm transition-colors ${
+                  pathname === l.href || pathname.startsWith(l.href + '/') ? 'bg-white/20' : 'hover:bg-white/10'
+                }`}>
                 {l.label}
               </Link>
             ))}

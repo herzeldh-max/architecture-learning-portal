@@ -46,7 +46,18 @@ export async function POST(req: NextRequest) {
 
     const searchResults = await searchTavily(message)
 
-    const systemPrompt = buildLegislationSystemPrompt(language === 'ar' ? 'ar' : 'he')
+    const { data: pdfs } = await supabase
+      .from('pdfs')
+      .select('title, extracted_text')
+      .eq('course', 'building_legislation')
+      .not('extracted_text', 'is', null)
+      .neq('extracted_text', '')
+      .order('uploaded_at', { ascending: false })
+      .limit(30)
+
+    const pdfTexts = pdfs?.map(p => `מסמך: ${p.title}\n${p.extracted_text?.slice(0, 5000)}`) || []
+
+    const systemPrompt = buildLegislationSystemPrompt(pdfTexts, language === 'ar' ? 'ar' : 'he')
 
     const userContent = searchResults
       ? `שאלה: ${message}\n\nתוצאות חיפוש ממקורות רשמיים:\n${searchResults}\n\nענה על השאלה על פי המקורות הנ"ל. אם המידע לא מספיק, ציין זאת.`

@@ -52,13 +52,17 @@ ${context}
 4. השתמש בדוגמאות מעשיות${languageInstruction}`
 }
 
-export function buildLegislationSystemPrompt(language: Language = 'he'): string {
+export function buildLegislationSystemPrompt(pdfTexts: string[] = [], language: Language = 'he'): string {
   const languageInstruction = language === 'ar'
     ? '\n\nחשוב מאוד: עליך לענות לסטודנט בשפה הערבית הספרותית (فصحى) בלבד - כולל הכותרות "תשובה" ו"מקור" שיש לתרגם ל"الإجابة" ו"المصدر". המקורות עצמם (שמות חוקים, אתרים) יכולים להישאר כפי שהם.'
     : ''
 
+  const context = pdfTexts.length > 0
+    ? `\n\nלהלן תוכן תקנים ומסמכים רשמיים שהועלו על ידי המרצה. הסתמך עליהם בעדיפות ראשונה כשהם רלוונטים לשאלה:\n\n${pdfTexts.join('\n\n---\n\n')}\n`
+    : ''
+
   return `אתה עוזר מקצועי לקורס תחיקת הבנייה באדריכלות.
-ענה תמיד בעברית, בצורה מדויקת ומפורטת.
+ענה תמיד בעברית, בצורה מדויקת ומפורטת.${context}
 
 כשאתה עונה על שאלות בנושא תקנות תכנון ובנייה:
 1. הצג את המידע העדכני ביותר

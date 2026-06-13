@@ -113,6 +113,30 @@ export interface Dictionary {
     semesterB: string
     bothSemesters: string
   }
+  buildingLegislation: {
+    title: string
+    subtitle: string
+    chatButton: string
+    quickLinks: {
+      chat: { title: string; desc: string }
+    }
+    materialsTitle: string
+    noMaterials: string
+    noMaterialsSub: string
+    upload: {
+      title: string
+      nameLabel: string
+      namePlaceholder: string
+      fileLabel: string
+      submit: string
+      uploading: string
+      success: string
+      error: string
+      delete: string
+      deleteConfirm: string
+      existingTitle: string
+    }
+  }
   exam: {
     title: string
     settingsTitle: string
@@ -320,7 +344,7 @@ const he: Dictionary = {
     legislationCard: {
       title: 'תחיקת הבנייה',
       desc: 'שאלות על תקנות תכנון ובנייה עם מקורות עדכניים',
-      link: 'שאלות על תקנות',
+      link: 'חומרי לימוד',
     },
     adminSection: {
       title: 'ממשק מנהל',
@@ -349,6 +373,30 @@ const he: Dictionary = {
     semesterA: "סמסטר א'",
     semesterB: "סמסטר ב'",
     bothSemesters: 'חומר משני הסמסטרים',
+  },
+  buildingLegislation: {
+    title: 'תחיקת הבנייה',
+    subtitle: 'תקנות תכנון ובנייה, חוקים ונהלים',
+    chatButton: 'שאלות על תקנות',
+    quickLinks: {
+      chat: { title: 'שאלות על תקנות', desc: 'שאל כל שאלה על תקנות תכנון ובנייה' },
+    },
+    materialsTitle: 'תקנים וחומרי לימוד',
+    noMaterials: 'אין עדיין תקנים או מסמכים מועלים',
+    noMaterialsSub: 'מסמכים שיועלו ישמשו את ה-AI לענות בצורה מדויקת יותר',
+    upload: {
+      title: 'העלאת תקן או מסמך',
+      nameLabel: 'שם המסמך',
+      namePlaceholder: 'לדוגמה: תקן ישראלי 1918 - בידוד תרמי',
+      fileLabel: 'קובץ PDF',
+      submit: 'העלה קובץ',
+      uploading: 'מעלה...',
+      success: 'הקובץ הועלה בהצלחה',
+      error: 'שגיאה בהעלאת הקובץ',
+      delete: 'מחק',
+      deleteConfirm: 'למחוק את המסמך?',
+      existingTitle: 'מסמכים קיימים',
+    },
   },
   exam: {
     title: 'הכנה למבחן - תורת הבנייה',
@@ -566,7 +614,7 @@ const ar: Dictionary = {
     legislationCard: {
       title: 'تشريعات البناء',
       desc: 'أسئلة حول لوائح التخطيط والبناء مع مصادر محدثة',
-      link: 'أسئلة حول اللوائح',
+      link: 'المواد التعليمية',
     },
     adminSection: {
       title: 'واجهة المدير',
@@ -595,6 +643,30 @@ const ar: Dictionary = {
     semesterA: 'الفصل الأول',
     semesterB: 'الفصل الثاني',
     bothSemesters: 'مواد من الفصلين',
+  },
+  buildingLegislation: {
+    title: 'تشريعات البناء',
+    subtitle: 'لوائح التخطيط والبناء، القوانين والإجراءات',
+    chatButton: 'أسئلة حول اللوائح',
+    quickLinks: {
+      chat: { title: 'أسئلة حول اللوائح', desc: 'اطرح أي سؤال حول لوائح التخطيط والبناء' },
+    },
+    materialsTitle: 'المواصفات والمواد التعليمية',
+    noMaterials: 'لا توجد مواصفات أو مستندات مرفوعة حتى الآن',
+    noMaterialsSub: 'المستندات التي تُرفع ستُستخدم بواسطة الذكاء الاصطناعي للإجابة بدقة أكبر',
+    upload: {
+      title: 'رفع مواصفة أو مستند',
+      nameLabel: 'اسم المستند',
+      namePlaceholder: 'مثال: المواصفة الإسرائيلية 1918 - العزل الحراري',
+      fileLabel: 'ملف PDF',
+      submit: 'رفع الملف',
+      uploading: 'جاري الرفع...',
+      success: 'تم رفع الملف بنجاح',
+      error: 'حدث خطأ في رفع الملف',
+      delete: 'حذف',
+      deleteConfirm: 'هل تريد حذف المستند؟',
+      existingTitle: 'مستندات موجودة',
+    },
   },
   exam: {
     title: 'الاستعداد للامتحان - نظرية البناء',

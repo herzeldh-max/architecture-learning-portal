@@ -56,7 +56,8 @@ export default async function DashboardPage() {
           title={t.dashboard.legislationCard.title}
           description={t.dashboard.legislationCard.desc}
           links={[
-            { href: '/building-legislation/chat', label: t.dashboard.legislationCard.link },
+            { href: '/building-legislation', label: t.dashboard.legislationCard.link },
+            { href: '/building-legislation/chat', label: t.buildingLegislation.chatButton },
           ]}
           color="#2d6a4f"
         />
