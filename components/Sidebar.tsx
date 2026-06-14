@@ -20,7 +20,12 @@ export default function Sidebar({ role }: SidebarProps) {
   ]
 
   if (role === 'admin') {
-    links.push({ href: '/admin', label: t.nav.admin })
+    links.push(
+      { href: '/admin', label: t.nav.admin },
+      { href: '/admin/upload', label: 'העלאת מצגות' },
+      { href: '/admin/students', label: 'ניהול סטודנטים' },
+      { href: '/admin/statistics', label: 'סטטיסטיקות' },
+    )
   }
 
   return (
@@ -30,7 +35,8 @@ export default function Sidebar({ role }: SidebarProps) {
     >
       <nav className="p-3 flex flex-col gap-1">
         {links.map(l => {
-          const active = pathname === l.href || pathname.startsWith(l.href + '/')
+          const active = pathname === l.href
+            || (l.href !== '/admin' && pathname.startsWith(l.href + '/'))
           return (
             <Link
               key={l.href}
