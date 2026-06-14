@@ -24,8 +24,11 @@ export default function Sidebar({ role }: SidebarProps) {
   }
 
   return (
-    <aside className="hidden md:block w-56 flex-shrink-0">
-      <nav className="card p-3 flex flex-col gap-1 sticky top-20">
+    <aside
+      className="hidden md:flex md:flex-col w-56 flex-shrink-0 fixed top-14 right-0 h-[calc(100vh-3.5rem)] overflow-y-auto z-40"
+      style={{ backgroundColor: 'var(--card)', borderLeft: '1px solid var(--border)' }}
+    >
+      <nav className="p-3 flex flex-col gap-1">
         {links.map(l => {
           const active = pathname === l.href || pathname.startsWith(l.href + '/')
           return (

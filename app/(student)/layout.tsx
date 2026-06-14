@@ -25,13 +25,13 @@ export default async function StudentLayout({ children }: { children: React.Reac
   return (
     <div className="min-h-screen flex flex-col">
       <Navbar userName={profile?.full_name || user.email || ''} role={profile?.role || 'student'} />
-      <div className="flex-1 max-w-6xl mx-auto w-full px-4 py-6 flex gap-6">
-        <Sidebar role={profile?.role || 'student'} />
-        <main className="flex-1 min-w-0">
+      <Sidebar role={profile?.role || 'student'} />
+      <div className="flex-1 w-full px-4 py-6 md:pr-60">
+        <main className="max-w-6xl mx-auto w-full min-w-0">
           {children}
         </main>
       </div>
-      <footer className="py-3 text-center text-xs" style={{ color: 'var(--text-muted)', borderTop: '1px solid var(--border)' }}>
+      <footer className="py-3 text-center text-xs md:pr-60" style={{ color: 'var(--text-muted)', borderTop: '1px solid var(--border)' }}>
         {t.footer}
       </footer>
     </div>

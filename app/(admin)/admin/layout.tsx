@@ -1,6 +1,7 @@
 import { redirect } from 'next/navigation'
 import { createClient, createAdminClient } from '@/lib/supabase-server'
 import Navbar from '@/components/Navbar'
+import Sidebar from '@/components/Sidebar'
 
 export default async function AdminLayout({ children }: { children: React.ReactNode }) {
   const supabase = await createClient()
@@ -19,10 +20,13 @@ export default async function AdminLayout({ children }: { children: React.ReactN
   return (
     <div className="min-h-screen flex flex-col">
       <Navbar userName={profile?.full_name || user.email || ''} role="admin" />
-      <main className="flex-1 max-w-6xl mx-auto w-full px-4 py-6">
-        {children}
+      <Sidebar role="admin" />
+      <main className="flex-1 w-full px-4 py-6 md:pr-60">
+        <div className="max-w-6xl mx-auto w-full">
+          {children}
+        </div>
       </main>
-      <footer className="py-3 text-center text-xs" style={{ color: 'var(--text-muted)', borderTop: '1px solid var(--border)' }}>
+      <footer className="py-3 text-center text-xs md:pr-60" style={{ color: 'var(--text-muted)', borderTop: '1px solid var(--border)' }}>
         פורטל לימוד - אדריכלות ועיצוב פנים | &copy; כל הזכויות שמורות לבן שבת הרצל | המכללה הטכנולוגית באר שבע
       </footer>
     </div>
