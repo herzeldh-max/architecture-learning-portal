@@ -38,6 +38,9 @@ export default function Navbar({ userName, role }: NavbarProps) {
     { href: '/building-legislation', label: t.nav.buildingLegislation },
     { href: '/dictionary', label: t.nav.dictionary },
     { href: '/admin', label: t.nav.admin },
+    { href: '/admin/upload', label: 'העלאת מצגות' },
+    { href: '/admin/students', label: 'ניהול סטודנטים' },
+    { href: '/admin/statistics', label: 'סטטיסטיקות' },
   ]
 
   const links = role === 'admin' ? adminLinks : studentLinks
