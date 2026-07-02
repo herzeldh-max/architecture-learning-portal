@@ -16,28 +16,26 @@ export async function POST(req: NextRequest) {
     let fullAnswer: string
 
     if (question.type === 'multiple') {
-      const selectedChoice = studentAnswer
       const correctChoice = question.choices[question.correctIndex]
-      const isCorrect = selectedChoice === correctChoice
-
+      const isCorrect = studentAnswer === correctChoice
       score = isCorrect ? 10 : 0
       if (lang === 'ar') {
         feedback = isCorrect
           ? `صحيح! ${question.explanation}`
-          : `غير صحيح. لقد اخترت: "${selectedChoice}"`
+          : `غير صحيح. لقد اخترت: "${studentAnswer}"`
         fullAnswer = isCorrect ? '' : `الإجابة الصحيحة: "${correctChoice}"\n\n${question.explanation}`
       } else {
         feedback = isCorrect
           ? `נכון! ${question.explanation}`
-          : `לא נכון. בחרת: "${selectedChoice}"`
+          : `לא נכון. בחרת: "${studentAnswer}"`
         fullAnswer = isCorrect ? '' : `התשובה הנכונה: "${correctChoice}"\n\n${question.explanation}`
       }
     } else {
       const languageInstruction = lang === 'ar'
-        ? '\n\nחשוב: כתוב את ה-feedback וה-fullAnswer בשפה הערבית הספרותית (فصحى) בלבד, גם אם תשובת הסטודנט כתובה בעברית או בערבית.'
+        ? '\n\nחשוב: כתוב את ה-feedback וה-fullAnswer בשפה הערבית הספרותית (فصحى) בלבד.'
         : ''
 
-      const prompt = `אתה מרצה לתורת הבנייה. הערך את תשובת הסטודנט.
+      const prompt = `אתה מרצה מומחה לתחיקת הבנייה הישראלית. הערך את תשובת הסטודנט.
 
 שאלה: ${question.question}
 
@@ -53,19 +51,16 @@ ${question.keyPoints?.map((p: string, i: number) => `${i + 1}. ${p}`).join('\n')
 - 5: כיסה חלק מהנקודות, תשובה חלקית אך מראה הבנה
 - 0: תשובה שגויה, חסרה לחלוטין, או לא ענה
 
-חשוב מאוד: שדה "fullAnswer" חייב תמיד להכיל את התשובה המלאה והנכונה לשאלה, המכסה את כל נקודות המפתח. אפילו אם הסטודנט ענה נכון - כתוב את התשובה המלאה כדי שישווה. אסור להשאיר את השדה ריק.
+חשוב מאוד: שדה "fullAnswer" חייב תמיד להכיל את התשובה המלאה והנכונה, כולל אזכור לחוקים ותקנות רלוונטיים. אסור להשאיר את השדה ריק.
 
 החזר JSON בדיוק:
 {
   "score": 0 | 5 | 10,
   "feedback": "משוב קצר ומפורט על תשובת הסטודנט",
-  "fullAnswer": "התשובה הנכונה המלאה המכסה את כל נקודות המפתח (חובה - לא ריק)"
+  "fullAnswer": "התשובה הנכונה המלאה עם אזכורי חוק/תקנה (חובה - לא ריק)"
 }${languageInstruction}`
 
-      const raw = await chat(
-        'אתה מרצה מקצועי. תן הערכה הוגנת ומפורטת.',
-        prompt
-      )
+      const raw = await chat('אתה מרצה מקצועי לתחיקת הבנייה. תן הערכה הוגנת ומפורטת.', prompt)
       const jsonMatch = raw.match(/\{[\s\S]*\}/)
       if (!jsonMatch) throw new Error('No JSON')
       const parsed = JSON.parse(jsonMatch[0])

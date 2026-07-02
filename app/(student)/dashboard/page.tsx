@@ -52,12 +52,23 @@ export default async function DashboardPage() {
           color="var(--primary)"
         />
         <CourseCard
+          icon="✍️"
+          title="כתיבת פרומפטים לאדריכלות"
+          description="למד Prompt Engineering מעשי עם תרחישים אדריכליים אמיתיים"
+          links={[
+            { href: '/prompt-engineering', label: 'לקורס' },
+            { href: '/prompt-engineering/practice?level=1', label: 'תרגול מיידי' },
+          ]}
+          color="#7b2d8b"
+        />
+        <CourseCard
           icon="📋"
           title={t.dashboard.legislationCard.title}
           description={t.dashboard.legislationCard.desc}
           links={[
             { href: '/building-legislation', label: t.dashboard.legislationCard.link },
             { href: '/building-legislation/chat', label: t.buildingLegislation.chatButton },
+            { href: '/building-legislation/exam', label: t.buildingLegislation.examButton },
           ]}
           color="#2d6a4f"
         />

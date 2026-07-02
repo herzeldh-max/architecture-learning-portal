@@ -40,6 +40,13 @@ export default async function BuildingLegislationPage() {
             <p className="text-xs" style={{ color: 'var(--text-muted)' }}>{t.buildingLegislation.quickLinks.chat.desc}</p>
           </div>
         </Link>
+        <Link href="/building-legislation/exam">
+          <div className="card p-4 hover:shadow-md transition-shadow cursor-pointer h-full" style={{ borderTop: '3px solid #2d6a4f' }}>
+            <div className="text-2xl mb-2">📝</div>
+            <h3 className="font-bold text-sm mb-1" style={{ color: '#2d6a4f' }}>{t.buildingLegislation.quickLinks.exam.title}</h3>
+            <p className="text-xs" style={{ color: 'var(--text-muted)' }}>{t.buildingLegislation.quickLinks.exam.desc}</p>
+          </div>
+        </Link>
       </div>
 
       <LegislationMaterials isAdmin={profile?.role === 'admin'} />

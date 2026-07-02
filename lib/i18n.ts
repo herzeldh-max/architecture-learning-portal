@@ -13,6 +13,7 @@ export interface Dictionary {
     buildingTheory: string
     buildingLegislation: string
     dictionary: string
+    promptEngineering: string
     admin: string
     adminBadge: string
   }
@@ -117,8 +118,10 @@ export interface Dictionary {
     title: string
     subtitle: string
     chatButton: string
+    examButton: string
     quickLinks: {
       chat: { title: string; desc: string }
+      exam: { title: string; desc: string }
     }
     materialsTitle: string
     noMaterials: string
@@ -221,6 +224,7 @@ const he: Dictionary = {
     buildingTheory: 'תורת הבנייה',
     buildingLegislation: 'תחיקת הבנייה',
     dictionary: 'מילון אדריכלי',
+    promptEngineering: 'כתיבת פרומפטים',
     admin: 'ניהול',
     adminBadge: 'מנהל',
   },
@@ -378,8 +382,10 @@ const he: Dictionary = {
     title: 'תחיקת הבנייה',
     subtitle: 'תקנות תכנון ובנייה, חוקים ונהלים',
     chatButton: 'שאלות על תקנות',
+    examButton: 'הכנה למבחן',
     quickLinks: {
       chat: { title: 'שאלות על תקנות', desc: 'שאל כל שאלה על תקנות תכנון ובנייה' },
+      exam: { title: 'הכנה למבחן', desc: 'שאלות אמריקאיות ופתוחות על חוקי הבנייה' },
     },
     materialsTitle: 'תקנים וחומרי לימוד',
     noMaterials: 'אין עדיין תקנים או מסמכים מועלים',
@@ -491,6 +497,7 @@ const ar: Dictionary = {
     buildingTheory: 'نظرية البناء',
     buildingLegislation: 'تشريعات البناء',
     dictionary: 'القاموس المعماري',
+    promptEngineering: 'كتابة البرومبت',
     admin: 'الإدارة',
     adminBadge: 'مدير',
   },
@@ -648,8 +655,10 @@ const ar: Dictionary = {
     title: 'تشريعات البناء',
     subtitle: 'لوائح التخطيط والبناء، القوانين والإجراءات',
     chatButton: 'أسئلة حول اللوائح',
+    examButton: 'الاستعداد للامتحان',
     quickLinks: {
       chat: { title: 'أسئلة حول اللوائح', desc: 'اطرح أي سؤال حول لوائح التخطيط والبناء' },
+      exam: { title: 'الاستعداد للامتحان', desc: 'أسئلة اختيار من متعدد ومفتوحة حول قوانين البناء' },
     },
     materialsTitle: 'المواصفات والمواد التعليمية',
     noMaterials: 'لا توجد مواصفات أو مستندات مرفوعة حتى الآن',
