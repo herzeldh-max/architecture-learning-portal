@@ -289,7 +289,7 @@ const he: Dictionary = {
       error: 'אימייל או סיסמה שגויים',
       noAccount: 'אין לך חשבון?',
       registerLink: 'הרשמה',
-      forgotPasswordLink: 'שכחת סיסמה?',
+      forgotPasswordLink: 'שכחתי סיסמה',
     },
     register: {
       title: 'הרשמה לפורטל',
