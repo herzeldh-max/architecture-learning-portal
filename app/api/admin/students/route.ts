@@ -1,16 +1,21 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient, createAdminClient } from '@/lib/supabase-server'
 
+async function verifyAdmin() {
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) return null
+  const adminClient = createAdminClient()
+  const { data: profile } = await adminClient
+    .from('user_profiles').select('role').eq('id', user.id).single()
+  if (profile?.role !== 'admin') return null
+  return adminClient
+}
+
 export async function GET(req: NextRequest) {
   try {
-    const supabase = await createClient()
-    const { data: { user } } = await supabase.auth.getUser()
-    if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
-
-    const adminClient = createAdminClient()
-    const { data: profile } = await adminClient
-      .from('user_profiles').select('role').eq('id', user.id).single()
-    if (profile?.role !== 'admin') return NextResponse.json({ error: 'Admin only' }, { status: 403 })
+    const adminClient = await verifyAdmin()
+    if (!adminClient) return NextResponse.json({ error: 'Admin only' }, { status: 403 })
 
     const { data: profiles } = await adminClient
       .from('user_profiles')
@@ -46,6 +51,59 @@ export async function GET(req: NextRequest) {
     }))
 
     return NextResponse.json({ students })
+  } catch {
+    return NextResponse.json({ error: 'Server error' }, { status: 500 })
+  }
+}
+
+export async function PATCH(req: NextRequest) {
+  try {
+    const adminClient = await verifyAdmin()
+    if (!adminClient) return NextResponse.json({ error: 'Admin only' }, { status: 403 })
+
+    const { studentId, fullName } = await req.json()
+    if (!studentId || !fullName?.trim()) {
+      return NextResponse.json({ error: 'Missing fields' }, { status: 400 })
+    }
+
+    const { error } = await adminClient
+      .from('user_profiles')
+      .update({ full_name: fullName.trim() })
+      .eq('id', studentId)
+      .eq('role', 'student')
+
+    if (error) return NextResponse.json({ error: error.message }, { status: 500 })
+    return NextResponse.json({ ok: true })
+  } catch {
+    return NextResponse.json({ error: 'Server error' }, { status: 500 })
+  }
+}
+
+export async function DELETE(req: NextRequest) {
+  try {
+    const adminClient = await verifyAdmin()
+    if (!adminClient) return NextResponse.json({ error: 'Admin only' }, { status: 403 })
+
+    const { studentId } = await req.json()
+    if (!studentId) return NextResponse.json({ error: 'Missing studentId' }, { status: 400 })
+
+    // Verify target is a student (not an admin)
+    const { data: target } = await adminClient
+      .from('user_profiles').select('role').eq('id', studentId).single()
+    if (!target || target.role !== 'student') {
+      return NextResponse.json({ error: 'Student not found' }, { status: 404 })
+    }
+
+    // Delete all associated data before removing the user
+    await adminClient.from('exam_answers').delete().eq('user_id', studentId)
+    await adminClient.from('question_history').delete().eq('user_id', studentId)
+    await adminClient.from('exam_sessions').delete().eq('user_id', studentId)
+    await adminClient.from('user_profiles').delete().eq('id', studentId)
+
+    // Delete the auth user (removes login access)
+    await adminClient.auth.admin.deleteUser(studentId)
+
+    return NextResponse.json({ ok: true })
   } catch {
     return NextResponse.json({ error: 'Server error' }, { status: 500 })
   }
