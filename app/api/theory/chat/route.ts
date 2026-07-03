@@ -3,6 +3,8 @@ import { createClient } from '@/lib/supabase-server'
 import { chatWithHistory } from '@/lib/claude'
 import { buildTheorySystemPrompt } from '@/lib/question-engine'
 
+export const maxDuration = 60
+
 export async function POST(req: NextRequest) {
   try {
     const supabase = await createClient()
@@ -18,10 +20,10 @@ export async function POST(req: NextRequest) {
       .not('extracted_text', 'is', null)
       .neq('extracted_text', '')
       .order('uploaded_at', { ascending: false })
-      .limit(30)
+      .limit(15)
 
     const pdfTexts = pdfs?.map(p =>
-      `מצגת: ${p.title} (סמסטר ${p.semester === 'A' ? 'א' : p.semester === 'B' ? 'ב' : 'שניהם'})\n${p.extracted_text?.slice(0, 5000)}`
+      `מצגת: ${p.title} (סמסטר ${p.semester === 'A' ? 'א' : p.semester === 'B' ? 'ב' : 'שניהם'})\n${p.extracted_text?.slice(0, 2500)}`
     ) || []
 
     const systemPrompt = buildTheorySystemPrompt(pdfTexts, language === 'ar' ? 'ar' : 'he')
@@ -36,6 +38,10 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ reply })
   } catch (e) {
     console.error(e)
+    const msg = String(e)
+    if (msg.includes('credit') || msg.includes('balance') || msg.includes('quota')) {
+      return NextResponse.json({ error: 'service-unavailable', message: 'שירות ה-AI אינו זמין כרגע עקב מגבלת שימוש. אנא פנה למרצה.' }, { status: 503 })
+    }
     return NextResponse.json({ error: 'Server error' }, { status: 500 })
   }
 }

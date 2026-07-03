@@ -3,6 +3,8 @@ import { createClient } from '@/lib/supabase-server'
 import { chat } from '@/lib/claude'
 import { hashQuestion, shuffleArray } from '@/lib/question-engine'
 
+export const maxDuration = 60
+
 export async function POST(req: NextRequest) {
   try {
     const supabase = await createClient()
@@ -28,7 +30,7 @@ export async function POST(req: NextRequest) {
       .eq('course', 'building_theory')
       .not('extracted_text', 'is', null)
       .neq('extracted_text', '')
-      .limit(30)
+      .limit(15)
 
     const filteredPdfs = pdfs?.filter(p =>
       semester === 'both' || p.semester === semester || p.semester === 'both'
@@ -41,7 +43,7 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'no-materials', message }, { status: 404 })
     }
 
-    const pdfContext = filteredPdfs.map(p => `${p.title}:\n${p.extracted_text?.slice(0, 3000)}`).join('\n\n')
+    const pdfContext = filteredPdfs.map(p => `${p.title}:\n${p.extracted_text?.slice(0, 2000)}`).join('\n\n')
 
     const { data: history } = await supabase
       .from('question_history')
@@ -163,6 +165,10 @@ ${avoidList}
     }
   } catch (e) {
     console.error(e)
+    const msg = String(e)
+    if (msg.includes('credit') || msg.includes('balance') || msg.includes('quota')) {
+      return NextResponse.json({ error: 'service-unavailable', message: 'שירות ה-AI אינו זמין כרגע עקב מגבלת שימוש. אנא פנה למרצה.' }, { status: 503 })
+    }
     return NextResponse.json({ error: 'Failed to generate question' }, { status: 500 })
   }
 }
