@@ -2,6 +2,7 @@ import Link from 'next/link'
 import { cookies } from 'next/headers'
 import { getDictionary, isValidLang } from '@/lib/i18n'
 import LanguageSwitcher from '@/components/LanguageSwitcher'
+import HeroVideo from '@/components/HeroVideo'
 
 export default async function HomePage() {
   const cookieStore = await cookies()
@@ -40,15 +41,7 @@ export default async function HomePage() {
       <main id="main-content" tabIndex={-1} className="flex-1">
         {/* HERO */}
         <section className="hero-section" aria-label="כותרת ראשית">
-          <video
-            src="/hero-video.mp4"
-            className="hero-video-bg"
-            autoPlay
-            loop
-            muted
-            playsInline
-            aria-hidden="true"
-          />
+          <HeroVideo />
           <div className="hero-overlay" aria-hidden="true" />
           <div className="hero-content">
             <h1 style={{
