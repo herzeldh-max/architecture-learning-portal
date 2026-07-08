@@ -17,6 +17,7 @@ export default function Sidebar({ role }: SidebarProps) {
     { href: '/building-theory', label: t.nav.buildingTheory },
     { href: '/building-legislation', label: t.nav.buildingLegislation },
     { href: '/dictionary', label: t.nav.dictionary },
+    { href: '/prompt-engineering', label: t.nav.promptEngineering || 'כתיבת פרומפטים' },
   ]
 
   if (role === 'admin') {
@@ -32,8 +33,9 @@ export default function Sidebar({ role }: SidebarProps) {
     <aside
       className="hidden md:flex md:flex-col w-56 flex-shrink-0 fixed top-14 right-0 h-[calc(100vh-3.5rem)] overflow-y-auto z-40"
       style={{ backgroundColor: 'var(--card)', borderLeft: '1px solid var(--border)' }}
+      aria-label="ניווט צדדי"
     >
-      <nav className="p-3 flex flex-col gap-1">
+      <nav className="p-3 flex flex-col gap-1" aria-label="קישורי ניווט">
         {links.map(l => {
           const active = pathname === l.href
             || (l.href !== '/admin' && pathname.startsWith(l.href + '/'))

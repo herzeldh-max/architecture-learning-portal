@@ -20,11 +20,33 @@ export default function LoginPage() {
     setError('')
     setLoading(true)
     const supabase = createClient()
-    const { error } = await supabase.auth.signInWithPassword({ email, password })
-    if (error) {
+
+    const { error: authError } = await supabase.auth.signInWithPassword({ email, password })
+    if (authError) {
       setError(t.auth.login.error)
       setLoading(false)
-    } else {
+      return
+    }
+
+    // Initiate 2FA: send 5-digit code to email
+    try {
+      const res = await fetch('/api/auth/initiate-2fa', { method: 'POST' })
+      const data = await res.json()
+
+      // If email not configured or sending failed, go directly to dashboard
+      if (data.skip) {
+        router.refresh()
+        router.push('/dashboard')
+        return
+      }
+
+      if (data.maskedEmail) {
+        sessionStorage.setItem('verify_masked_email', data.maskedEmail)
+        sessionStorage.setItem('verify_email', email)
+      }
+      router.push('/verify-login')
+    } catch {
+      // Network error - go directly to dashboard
       router.refresh()
       router.push('/dashboard')
     }
@@ -50,45 +72,55 @@ export default function LoginPage() {
           <p className="text-sm" style={{ color: 'var(--text-muted)' }}>{t.auth.login.subtitle}</p>
         </div>
 
-        <form onSubmit={handleLogin} className="space-y-4">
+        <form onSubmit={handleLogin} className="space-y-4" noValidate>
           <div>
-            <label className="block text-sm font-medium mb-1">{t.auth.login.email}</label>
+            <label htmlFor="login-email" className="block text-sm font-medium mb-1">{t.auth.login.email}</label>
             <input
+              id="login-email"
               type="email"
               value={email}
               onChange={e => setEmail(e.target.value)}
               className="input-field"
               placeholder="your@email.com"
               required
+              aria-required="true"
               dir="ltr"
+              autoComplete="email"
             />
           </div>
           <div>
             <div className="flex items-center justify-between mb-1">
-              <label className="block text-sm font-medium">{t.auth.login.password}</label>
+              <label htmlFor="login-password" className="block text-sm font-medium">{t.auth.login.password}</label>
               <Link href="/forgot-password" className="text-sm font-semibold" style={{ color: 'var(--primary)' }}>
                 {t.auth.login.forgotPasswordLink}
               </Link>
             </div>
             <input
+              id="login-password"
               type="password"
               value={password}
               onChange={e => setPassword(e.target.value)}
               className="input-field"
               placeholder="••••••••"
               required
+              aria-required="true"
               dir="ltr"
+              autoComplete="current-password"
             />
           </div>
 
-          {error && (
-            <div className="p-3 rounded-lg text-sm text-center" style={{ backgroundColor: '#fff5f5', color: 'var(--error)' }}>
-              {error}
-            </div>
-          )}
+          <div role="alert" aria-live="assertive" aria-atomic="true">
+            {error && (
+              <div className="p-3 rounded-lg text-sm text-center" style={{ backgroundColor: '#fff5f5', color: 'var(--error)' }}>
+                {error}
+              </div>
+            )}
+          </div>
 
-          <button type="submit" disabled={loading} className="btn-primary w-full justify-center py-3 text-base">
-            {loading ? <><span className="spinner" style={{ borderTopColor: 'white' }} /> {t.auth.login.submitting}</> : t.auth.login.submit}
+          <button type="submit" disabled={loading} className="btn-primary w-full justify-center py-3 text-base" aria-busy={loading}>
+            {loading
+              ? <><span className="spinner" aria-hidden="true" style={{ borderTopColor: 'white' }} /> {t.auth.login.submitting}</>
+              : t.auth.login.submit}
           </button>
         </form>
 

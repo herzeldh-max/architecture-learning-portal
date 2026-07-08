@@ -3,6 +3,8 @@ import { createClient } from '@/lib/supabase-server'
 import { chat } from '@/lib/claude'
 import { hashQuestion, shuffleArray } from '@/lib/question-engine'
 
+export const maxDuration = 60
+
 export async function POST(req: NextRequest) {
   try {
     const supabase = await createClient()

@@ -16,6 +16,7 @@ export interface Dictionary {
     promptEngineering: string
     admin: string
     adminBadge: string
+    profile: string
   }
   home: {
     collegeSubtitle: string
@@ -227,6 +228,7 @@ const he: Dictionary = {
     promptEngineering: 'כתיבת פרומפטים',
     admin: 'ניהול',
     adminBadge: 'מנהל',
+    profile: 'הפרופיל שלי',
   },
   home: {
     collegeSubtitle: 'המכללה הטכנולוגית בבאר שבע',
@@ -500,6 +502,7 @@ const ar: Dictionary = {
     promptEngineering: 'كتابة البرومبت',
     admin: 'الإدارة',
     adminBadge: 'مدير',
+    profile: 'ملفي الشخصي',
   },
   home: {
     collegeSubtitle: 'الكلية التكنولوجية في بئر السبع',

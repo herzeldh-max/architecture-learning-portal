@@ -68,36 +68,43 @@ export default function RegisterPage() {
           <p className="text-sm" style={{ color: 'var(--text-muted)' }}>{t.auth.register.subtitle}</p>
         </div>
 
-        <form onSubmit={handleRegister} className="space-y-4">
+        <form onSubmit={handleRegister} className="space-y-4" noValidate>
           <div>
-            <label className="block text-sm font-medium mb-1">{t.auth.register.fullName}</label>
-            <input value={fullName} onChange={e => setFullName(e.target.value)}
-              className="input-field" placeholder={t.auth.register.fullNamePlaceholder} required />
+            <label htmlFor="reg-name" className="block text-sm font-medium mb-1">{t.auth.register.fullName}</label>
+            <input id="reg-name" value={fullName} onChange={e => setFullName(e.target.value)}
+              className="input-field" placeholder={t.auth.register.fullNamePlaceholder} required
+              aria-required="true" autoComplete="name" />
           </div>
           <div>
-            <label className="block text-sm font-medium mb-1">{t.auth.register.email}</label>
-            <input type="email" value={email} onChange={e => setEmail(e.target.value)}
-              className="input-field" placeholder="your@email.com" required dir="ltr" />
+            <label htmlFor="reg-email" className="block text-sm font-medium mb-1">{t.auth.register.email}</label>
+            <input id="reg-email" type="email" value={email} onChange={e => setEmail(e.target.value)}
+              className="input-field" placeholder="your@email.com" required dir="ltr"
+              aria-required="true" autoComplete="email" />
           </div>
           <div>
-            <label className="block text-sm font-medium mb-1">{t.auth.register.password}</label>
-            <input type="password" value={password} onChange={e => setPassword(e.target.value)}
-              className="input-field" placeholder={t.auth.register.passwordPlaceholder} required dir="ltr" />
+            <label htmlFor="reg-password" className="block text-sm font-medium mb-1">{t.auth.register.password}</label>
+            <input id="reg-password" type="password" value={password} onChange={e => setPassword(e.target.value)}
+              className="input-field" placeholder={t.auth.register.passwordPlaceholder} required dir="ltr"
+              aria-required="true" autoComplete="new-password" aria-describedby="reg-pass-hint" />
+            <span id="reg-pass-hint" className="text-xs" style={{ color: 'var(--text-muted)' }}>לפחות 6 תווים</span>
           </div>
           <div>
-            <label className="block text-sm font-medium mb-1">{t.auth.register.confirmPassword}</label>
-            <input type="password" value={password2} onChange={e => setPassword2(e.target.value)}
-              className="input-field" placeholder={t.auth.register.confirmPasswordPlaceholder} required dir="ltr" />
+            <label htmlFor="reg-password2" className="block text-sm font-medium mb-1">{t.auth.register.confirmPassword}</label>
+            <input id="reg-password2" type="password" value={password2} onChange={e => setPassword2(e.target.value)}
+              className="input-field" placeholder={t.auth.register.confirmPasswordPlaceholder} required dir="ltr"
+              aria-required="true" autoComplete="new-password" />
           </div>
 
-          {error && (
-            <div className="p-3 rounded-lg text-sm text-center" style={{ backgroundColor: '#fff5f5', color: 'var(--error)' }}>
-              {error}
-            </div>
-          )}
+          <div role="alert" aria-live="assertive" aria-atomic="true">
+            {error && (
+              <div className="p-3 rounded-lg text-sm text-center" style={{ backgroundColor: '#fff5f5', color: 'var(--error)' }}>
+                {error}
+              </div>
+            )}
+          </div>
 
-          <button type="submit" disabled={loading} className="btn-primary w-full justify-center py-3 text-base">
-            {loading ? <><span className="spinner" style={{ borderTopColor: 'white' }} /> {t.auth.register.submitting}</> : t.auth.register.submit}
+          <button type="submit" disabled={loading} className="btn-primary w-full justify-center py-3 text-base" aria-busy={loading}>
+            {loading ? <><span className="spinner" aria-hidden="true" style={{ borderTopColor: 'white' }} /> {t.auth.register.submitting}</> : t.auth.register.submit}
           </button>
         </form>
 

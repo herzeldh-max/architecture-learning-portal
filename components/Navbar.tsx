@@ -30,6 +30,7 @@ export default function Navbar({ userName, role }: NavbarProps) {
     { href: '/building-theory', label: t.nav.buildingTheory },
     { href: '/building-legislation', label: t.nav.buildingLegislation },
     { href: '/dictionary', label: t.nav.dictionary },
+    { href: '/profile', label: t.nav.profile },
   ]
 
   const adminLinks = [
@@ -46,7 +47,7 @@ export default function Navbar({ userName, role }: NavbarProps) {
   const links = role === 'admin' ? adminLinks : studentLinks
 
   return (
-    <nav style={{ backgroundColor: 'var(--primary)' }} className="text-white shadow-md sticky top-0 z-50">
+    <nav style={{ backgroundColor: 'var(--primary)' }} className="text-white shadow-md sticky top-0 z-50" aria-label="ניווט ראשי">
       <div className="max-w-6xl mx-auto px-4">
         <div className="flex items-center justify-between h-14">
           <div className="flex items-center gap-3">
@@ -66,7 +67,12 @@ export default function Navbar({ userName, role }: NavbarProps) {
 
           <div className="hidden md:flex items-center gap-3">
             <LanguageSwitcher variant="dark" />
-            <span className="text-sm opacity-75 truncate max-w-32">{userName}</span>
+            <Link href="/profile" className="flex items-center gap-1.5 text-sm opacity-90 hover:opacity-100 transition-opacity">
+              <span className="w-7 h-7 rounded-full bg-white/20 flex items-center justify-center text-xs font-bold">
+                {userName?.[0]?.toUpperCase() || '?'}
+              </span>
+              <span className="truncate max-w-28">{userName}</span>
+            </Link>
             {role === 'admin' && (
               <span className="text-xs px-2 py-0.5 rounded-full font-medium" style={{ backgroundColor: 'var(--secondary)', color: '#1a202c' }}>
                 {t.nav.adminBadge}
@@ -77,15 +83,21 @@ export default function Navbar({ userName, role }: NavbarProps) {
             </button>
           </div>
 
-          <button onClick={() => setMenuOpen(!menuOpen)} className="md:hidden p-2 rounded hover:bg-white/10">
-            <div className="w-5 h-0.5 bg-white mb-1"></div>
-            <div className="w-5 h-0.5 bg-white mb-1"></div>
-            <div className="w-5 h-0.5 bg-white"></div>
+          <button
+            onClick={() => setMenuOpen(!menuOpen)}
+            className="md:hidden p-2 rounded hover:bg-white/10"
+            aria-expanded={menuOpen}
+            aria-controls="mobile-menu"
+            aria-label={menuOpen ? 'סגור תפריט ניווט' : 'פתח תפריט ניווט'}
+          >
+            <div className="w-5 h-0.5 bg-white mb-1" aria-hidden="true"></div>
+            <div className="w-5 h-0.5 bg-white mb-1" aria-hidden="true"></div>
+            <div className="w-5 h-0.5 bg-white" aria-hidden="true"></div>
           </button>
         </div>
 
         {menuOpen && (
-          <div className="md:hidden pb-3 border-t border-white/20 mt-1 pt-2">
+          <div id="mobile-menu" className="md:hidden pb-3 border-t border-white/20 mt-1 pt-2">
             {links.map(l => (
               <Link key={l.href} href={l.href} onClick={() => setMenuOpen(false)}
                 className={`block px-3 py-2 rounded-lg text-sm transition-colors ${
