@@ -1,4 +1,5 @@
 import { createClient, createAdminClient } from '@/lib/supabase-server'
+// adminClient used only for course_images signed URLs
 import Link from 'next/link'
 import { cookies } from 'next/headers'
 import { getDictionary, isValidLang } from '@/lib/i18n'
@@ -14,10 +15,9 @@ export default async function BuildingTheoryPage() {
     .order('semester')
     .order('uploaded_at', { ascending: true })
 
-  const pdfsWithUrls = await Promise.all((pdfs || []).map(async pdf => {
-    if (!pdf.storage_path) return { ...pdf, signedUrl: null }
-    const { data } = await adminClient.storage.from('pdfs').createSignedUrl(pdf.storage_path, 3600)
-    return { ...pdf, signedUrl: data?.signedUrl || null }
+  const pdfsWithUrls = (pdfs || []).map(pdf => ({
+    ...pdf,
+    hasFile: !!pdf.storage_path,
   }))
 
   const { data: images } = await adminClient
@@ -131,9 +131,10 @@ function QuickLink({ href, icon, title, desc }: { href: string; icon: string; ti
   )
 }
 
-function PDFCard({ pdf, dateLocale }: { pdf: { id: string; title: string; semester: string; uploaded_at: string; file_size: number; signedUrl: string | null }; dateLocale: string }) {
+function PDFCard({ pdf, dateLocale }: { pdf: { id: string; title: string; semester: string; uploaded_at: string; file_size: number; hasFile: boolean }; dateLocale: string }) {
   const date = new Date(pdf.uploaded_at).toLocaleDateString(dateLocale)
   const size = pdf.file_size ? `${Math.round(pdf.file_size / 1024)} KB` : ''
+  const viewUrl = `/building-theory/view?id=${pdf.id}&title=${encodeURIComponent(pdf.title)}`
   return (
     <div className="card p-4 flex items-center gap-3">
       <div className="text-3xl flex-shrink-0">📄</div>
@@ -143,11 +144,11 @@ function PDFCard({ pdf, dateLocale }: { pdf: { id: string; title: string; semest
           {date} {size && `· ${size}`}
         </p>
       </div>
-      {pdf.signedUrl && (
-        <a href={pdf.signedUrl} target="_blank" rel="noopener noreferrer"
+      {pdf.hasFile && (
+        <a href={viewUrl}
           className="flex-shrink-0 text-xs px-3 py-1.5 rounded-lg font-medium transition-colors"
           style={{ backgroundColor: 'var(--primary)', color: 'white' }}>
-          פתח
+          צפה
         </a>
       )}
     </div>
