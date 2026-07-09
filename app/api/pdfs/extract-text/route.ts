@@ -64,7 +64,14 @@ export async function POST(req: NextRequest) {
       extractedText = block.type === 'text' ? block.text.slice(0, 50000) : ''
     } catch (e) {
       console.error('Claude OCR error:', e)
-      return NextResponse.json({ error: 'שגיאה בחילוץ טקסט OCR' }, { status: 500 })
+      const msg = String(e)
+      if (msg.includes('credit') || msg.includes('balance') || msg.includes('quota') || msg.includes('billing')) {
+        return NextResponse.json({ error: 'אין קרדיטים ב-Anthropic API. יש להוסיף תקציב בכתובת console.anthropic.com ← Plans & Billing' }, { status: 503 })
+      }
+      if (msg.includes('timeout') || msg.includes('timed out')) {
+        return NextResponse.json({ error: 'הקובץ גדול מדי — הבקשה פגה. נסה קובץ קטן יותר' }, { status: 408 })
+      }
+      return NextResponse.json({ error: `שגיאה בחילוץ טקסט: ${msg.slice(0, 120)}` }, { status: 500 })
     }
 
     if (!extractedText || extractedText.length < 50) {
