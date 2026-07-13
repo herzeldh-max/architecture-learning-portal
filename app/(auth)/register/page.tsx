@@ -14,6 +14,7 @@ export default function RegisterPage() {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [password2, setPassword2] = useState('')
+  const [agreedToPrivacy, setAgreedToPrivacy] = useState(false)
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
 
@@ -22,6 +23,7 @@ export default function RegisterPage() {
     setError('')
     if (password !== password2) { setError(t.auth.register.errorMismatch); return }
     if (password.length < 6) { setError(t.auth.register.errorShort); return }
+    if (!agreedToPrivacy) { setError('יש לאשר את מדיניות הפרטיות כדי להירשם'); return }
     setLoading(true)
 
     const res = await fetch('/api/auth/register', {
@@ -95,6 +97,24 @@ export default function RegisterPage() {
               aria-required="true" autoComplete="new-password" />
           </div>
 
+          <div className="flex items-start gap-2">
+            <input
+              id="reg-privacy"
+              type="checkbox"
+              checked={agreedToPrivacy}
+              onChange={e => setAgreedToPrivacy(e.target.checked)}
+              required
+              aria-required="true"
+              style={{ marginTop: '3px' }}
+            />
+            <label htmlFor="reg-privacy" className="text-sm" style={{ color: 'var(--text-muted)' }}>
+              קראתי ואני מאשר/ת את{' '}
+              <Link href="/privacy" target="_blank" className="font-semibold" style={{ color: 'var(--primary)' }}>
+                מדיניות הפרטיות
+              </Link>
+            </label>
+          </div>
+
           <div role="alert" aria-live="assertive" aria-atomic="true">
             {error && (
               <div className="p-3 rounded-lg text-sm text-center" style={{ backgroundColor: '#fff5f5', color: 'var(--error)' }}>
@@ -103,7 +123,7 @@ export default function RegisterPage() {
             )}
           </div>
 
-          <button type="submit" disabled={loading} className="btn-primary w-full justify-center py-3 text-base" aria-busy={loading}>
+          <button type="submit" disabled={loading || !agreedToPrivacy} className="btn-primary w-full justify-center py-3 text-base" aria-busy={loading}>
             {loading ? <><span className="spinner" aria-hidden="true" style={{ borderTopColor: 'white' }} /> {t.auth.register.submitting}</> : t.auth.register.submit}
           </button>
         </form>

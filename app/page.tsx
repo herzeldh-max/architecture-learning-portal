@@ -141,9 +141,14 @@ export default async function HomePage() {
         <p style={{ fontSize: '13px', color: 'var(--text-muted)', textAlign: 'center' }}>
           {t.footer}
         </p>
-        <Link href="/accessibility" style={{ fontSize: '13px', fontWeight: 600, color: 'var(--primary)' }}>
-          הצהרת נגישות
-        </Link>
+        <div className="flex items-center gap-4">
+          <Link href="/accessibility" style={{ fontSize: '13px', fontWeight: 600, color: 'var(--primary)' }}>
+            הצהרת נגישות
+          </Link>
+          <Link href="/privacy" style={{ fontSize: '13px', fontWeight: 600, color: 'var(--primary)' }}>
+            מדיניות פרטיות
+          </Link>
+        </div>
       </footer>
     </div>
   )
