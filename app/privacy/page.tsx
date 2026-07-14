@@ -68,6 +68,41 @@ export default function PrivacyPage() {
           </p>
         </section>
 
+        <section aria-labelledby="privacy-cookies">
+          <h2 id="privacy-cookies" className="text-xl font-bold mb-3 mt-6" style={{ color: 'var(--primary)' }}>
+            שימוש בעוגיות (Cookies)
+          </h2>
+          <p className="mb-4">
+            הפורטל משתמש בעוגייה אחת בלבד, הכרחית לתפקוד הבסיסי של האתר. אנו <strong>לא</strong> משתמשים
+            בעוגיות מעקב, פרסום, או ניתוח סטטיסטי (כגון Google Analytics), ולא בפיקסלים של רשתות חברתיות.
+          </p>
+          <div className="overflow-x-auto mb-4">
+            <table className="w-full text-sm" style={{ borderCollapse: 'collapse' }}>
+              <thead>
+                <tr style={{ borderBottom: '2px solid var(--border)' }}>
+                  <th className="text-right p-2 font-semibold">שם</th>
+                  <th className="text-right p-2 font-semibold">מטרה</th>
+                  <th className="text-right p-2 font-semibold">סוג</th>
+                  <th className="text-right p-2 font-semibold">תוקף</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr style={{ borderBottom: '1px solid var(--border)' }}>
+                  <td className="p-2" dir="ltr" style={{ textAlign: 'right' }}>sb-*-auth-token</td>
+                  <td className="p-2">זיהוי המשתמש המחובר, לצורך גישה לחשבון האישי</td>
+                  <td className="p-2">הכרחית (צד ראשון)</td>
+                  <td className="p-2">עד יציאה מהמערכת</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          <p className="mb-4">
+            בנוסף, העדפות נגישות (ניגודיות, גודל טקסט וכו&apos;) נשמרות ב-<span dir="ltr">localStorage</span>{' '}
+            של הדפדפן שלך בלבד - זהו אינו cookie, המידע אינו נשלח לשרת ואינו מזוהה איתך אישית.
+            מכיוון שמדובר בעוגייה הכרחית בלבד, אין אפשרות &quot;לדחות&quot; אותה מבלי לאבד את היכולת להתחבר לחשבון.
+          </p>
+        </section>
+
         <section aria-labelledby="privacy-security">
           <h2 id="privacy-security" className="text-xl font-bold mb-3 mt-6" style={{ color: 'var(--primary)' }}>
             אבטחת מידע

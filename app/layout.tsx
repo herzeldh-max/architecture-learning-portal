@@ -4,6 +4,7 @@ import { cookies } from 'next/headers'
 import { LanguageProvider } from '@/components/LanguageProvider'
 import { isValidLang } from '@/lib/i18n'
 import A11yWidget from '@/components/A11yWidget'
+import CookieNotice from '@/components/CookieNotice'
 import './globals.css'
 
 const frankRuhlLibre = Frank_Ruhl_Libre({
@@ -49,6 +50,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
           {children}
         </LanguageProvider>
         <A11yWidget lang={lang} />
+        <CookieNotice />
         <div role="status" aria-live="polite" aria-atomic="true" className="sr-only" id="a11y-announcer" />
       </body>
     </html>
